@@ -422,7 +422,10 @@ textarea.ro{width:100%;height:220px;background:var(--s1);border:1px solid var(--
 <script>
 const DEMO = /*DEMO_DATA*/null;
 const IS_DEMO = !!DEMO;
+const WEB = /*WEB_MODE*/false;   /* version hébergée : pas de serveur, données dans le navigateur */
+const GH = 'https://github.com/c1pps/pnl-cards';
 let cards = DEMO ? DEMO.map(c=>Object.assign({},c)) : [];
+if(WEB){ try{ const st=JSON.parse(localStorage.getItem('pnl_web_cards')||'null'); if(Array.isArray(st)) cards=st; }catch(e){} }
 const S = {view:'dash', day:null, range:'day', jsort:{k:'date',d:1}, calMonth:null, sort:'pnl_desc', q:'', res:'all', month:'all', plat:'all', tag:'all', all:false, sel:null};
 let notice = '';
 let W = {address:'',key:'',pages:10,last:0,holdings:[],stats:null,hidden:[]};
@@ -465,7 +468,7 @@ const EN = {
 'Dépose des images PNG ou JPG':'Drop PNG or JPG images','Enregistré':'Saved','Supprimé':'Deleted','Trade ajouté':'Trade added','Entre un ticker':'Enter a ticker','Entre un PnL':'Enter a PnL','Entre un PnL, ou investi + reçu':'Enter a PnL, or invested + received','Colle l\'adresse de ton wallet.':'Paste your wallet address.','Connexion à Helius…':'Connecting to Helius…','Reconstruction des trades…':'Rebuilding trades…','Récupération des noms de tokens…':'Fetching token names…','Connexion annulée':'Connection cancelled','Adresse récupérée (lecture seule)':'Address retrieved (read-only)','Phantom introuvable dans ce navigateur':'Phantom not found in this browser',
 'Objectifs enregistrés':'Goals saved','Objectifs effacés':'Goals cleared','CSV copié':'CSV copied','Copié : colle dans Sheets (Ctrl+V)':'Copied: paste into Sheets (Ctrl+V)','Rien à importer':'Nothing to import','Tableau vide':'Empty table','Sauvegarde impossible':'Could not save','Touche les cartes à supprimer':'Tap the cards to delete','Échec de l\'import':'Import failed','L\'import d\'images est dans l\'application locale':'Image import is in the local app','Le lien fonctionne dans l\'application locale.':'The link works in the local app.',
 'Adresse invalide. Une adresse Solana fait 32 à 44 caractères.':'Invalid address. A Solana address is 32 to 44 characters.','Ça ressemble à une phrase secrète. Ne la colle jamais ici : il faut l\'adresse publique, celle qu\'on peut partager.':'This looks like a seed phrase. Never paste it here: we need the public address, the one you can share.','Ça ressemble à une clé privée. Ne la colle jamais ici : il faut l\'adresse publique.':'This looks like a private key. Never paste it here: we need the public address.','Clé Helius refusée. Vérifie-la sur helius.dev.':'Helius key rejected. Check it on helius.dev.','Impossible de joindre Helius. Vérifie ta connexion.':'Cannot reach Helius. Check your connection.','Le serveur public a refusé la requête. Réessaie dans une minute, ou ajoute une clé Helius gratuite.':'The public server refused the request. Try again in a minute, or add a free Helius key.','Le serveur public est saturé. Réessaie dans une minute, ou ajoute une clé Helius gratuite.':'The public server is overloaded. Try again in a minute, or add a free Helius key.','Réponse inattendue de Helius.':'Unexpected response from Helius.','Erreur inattendue.':'Unexpected error.','Le serveur local ne répond pas.':'The local server is not responding.',
-'Ajouter un trade à la main':'Add a trade by hand','Démo · données fictives · v5':'Demo · sample data · v5','Les images restent sur cet ordinateur · v5':'Images stay on this computer · v5','Meilleur retour %':'Best return %','Narratif':'Narrative','Annuler':'Cancel','Saisis-les à la main dans l\'onglet Cartes, ou vérifie qu\'il s\'agit bien d\'une carte Terminal, Axiom ou GMGN (pas d\'une capture d\'écran)':'Enter them by hand in the Cards tab, or check it is really a Terminal, Axiom or GMGN card (not a screenshot)','Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.':'Check that the black start.bat window is still open, then try again.','Tesseract n\'est pas installé.':'Tesseract is not installed.','C\'est le moteur qui lit les images. Installe-le (winget install --id UB-Mannheim.TesseractOCR), puis relance start.bat.':'It is the engine that reads images. Install it (winget install --id UB-Mannheim.TesseractOCR), then restart start.bat.','Fait par':'Made by','Langue':'Language','Open source sur GitHub':'Open source on GitHub'
+'Ajouter un trade à la main':'Add a trade by hand','Démo · données fictives · v5':'Demo · sample data · v5','Les images restent sur cet ordinateur · v5':'Images stay on this computer · v5','Meilleur retour %':'Best return %','Narratif':'Narrative','Annuler':'Cancel','Saisis-les à la main dans l\'onglet Cartes, ou vérifie qu\'il s\'agit bien d\'une carte Terminal, Axiom ou GMGN (pas d\'une capture d\'écran)':'Enter them by hand in the Cards tab, or check it is really a Terminal, Axiom or GMGN card (not a screenshot)','Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.':'Check that the black start.bat window is still open, then try again.','Tesseract n\'est pas installé.':'Tesseract is not installed.','C\'est le moteur qui lit les images. Installe-le (winget install --id UB-Mannheim.TesseractOCR), puis relance start.bat.':'It is the engine that reads images. Install it (winget install --id UB-Mannheim.TesseractOCR), then restart start.bat.','Version web · tes données restent dans ce navigateur · v5':'Web version · your data stays in this browser · v5','Ton journal de trading memecoins.':'Your memecoin trading journal.','Ajoute tes trades à la main ou importe un CSV / Google Sheets : stats, calendrier et courbe de capital se font tout seuls. Tes données restent dans ce navigateur. Pour lire tes PNL cards en image et connecter ton wallet, télécharge l\'application locale.':'Add your trades by hand or import a CSV / Google Sheet: stats, calendar and equity curve build themselves. Your data stays in this browser. To read PNL card images and connect your wallet, download the local app.','Ajouter un trade':'Add a trade','Télécharger l\'application locale':'Download the local app','Fait par':'Made by','Langue':'Language','Open source sur GitHub':'Open source on GitHub'
 };
 /* motifs : mots courts et phrases composées (ordre = priorité) */
 const EN_RE = [
@@ -652,6 +655,12 @@ function render(o){
   const all=trades(), bad=failed(), periods=cards.filter(c=>c.type==='period');
   const banner = notice?`<div class="banner">${notice}</div>`:'';
   if(!all.length && !bad.length && !periods.length && S.view!=='wallet'){
+    if(WEB){
+      main.innerHTML=`<section class="start"><h1>Ton journal de trading memecoins.</h1><p>Ajoute tes trades à la main ou importe un CSV / Google Sheets : stats, calendrier et courbe de capital se font tout seuls. Tes données restent dans ce navigateur. Pour lire tes PNL cards en image et connecter ton wallet, télécharge l'application locale.</p>${banner}
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap"><button class="pill" id="emptyTrade" type="button">Ajouter un trade</button><button class="chip" id="emptyMenu" type="button" style="height:44px;display:inline-flex;align-items:center">Importer un CSV ou un Google Sheets</button></div>
+      <div style="margin-top:20px"><a class="link" href="${GH}" target="_blank" rel="noopener">Télécharger l'application locale</a></div></section><div class="credit"><span>Fait par <a href="https://x.com/wthejulio" target="_blank" rel="noopener">wthejulio</a></span><i></i><a href="${GH}" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
+      $('emptyMenu').onclick=openAdd; $('emptyTrade').onclick=()=>openSheet('new'); return;
+    }
     main.innerHTML=`<section class="start"><h1>Dépose tes PNL cards.</h1><p>Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Tout reste sur ton ordinateur.</p>${banner}
       <div class="drop" id="drop" role="button" tabindex="0"><b>Choisir des images</b><span>ou glisse-les ici</span><div class="prog" id="prog"><i></i></div></div>
       <div style="display:flex;gap:24px;justify-content:center;margin-top:24px;flex-wrap:wrap"><button class="link" id="emptyTrade" type="button">Ajouter un trade à la main</button><button class="link" id="emptyMenu" type="button">Importer un CSV ou un Google Sheets</button><button class="link" id="emptyWallet" type="button">Connecter mon wallet</button></div></section>`;
@@ -660,7 +669,7 @@ function render(o){
   if(!S.day) S.day = initDay(all);
   const tabs=[['dash','Dashboard'],['journal','Journal'],['cards','Cartes'],['wallet','Wallet']];
   const nav=`<div class="navwrap"><div class="tabs" role="tablist"><span class="ind"></span>${tabs.map(([k,l])=>`<button class="tab ${S.view===k?'on':''}" data-view="${k}" role="tab" type="button">${l}</button>`).join('')}</div></div>`;
-  const foot = `<div class="foot"><span>${IS_DEMO?'Démo · données fictives':'Les images restent sur cet ordinateur'} · v5</span><button class="link" id="csvBtn" type="button">Exporter en CSV</button></div><div class="credit"><span>Fait par <a href="https://x.com/wthejulio" target="_blank" rel="noopener">wthejulio</a></span><i></i><a href="https://github.com/c1pps/pnl-cards" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
+  const foot = `<div class="foot"><span>${WEB?'Version web · tes données restent dans ce navigateur':IS_DEMO?'Démo · données fictives':'Les images restent sur cet ordinateur'} · v5</span><button class="link" id="csvBtn" type="button">Exporter en CSV</button></div><div class="credit"><span>Fait par <a href="https://x.com/wthejulio" target="_blank" rel="noopener">wthejulio</a></span><i></i><a href="https://github.com/c1pps/pnl-cards" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
   let body='';
   if(S.view==='wallet') body=walletView();
   else if(!all.length) body=`<div class="ph"><div><div class="eyebrow">Aucun trade lu pour l'instant</div></div></div>${unreadSec(bad)}${monthsBox(periods)}`;
@@ -1343,7 +1352,7 @@ function tableRows(){
 const csvCell = v => { const s=String(v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; };
 function exportCsv(){
   const txt='﻿'+tableRows().map(r=>r.map(csvCell).join(',')).join('\n');
-  if(IS_DEMO){
+  if(IS_DEMO&&!WEB){
     navigator.clipboard.writeText(txt).then(()=>toast('CSV copié')).catch(()=>{
       openPanel(`<div class="sh-top"><div class="tk">Export</div><button class="link" id="x" type="button">Fermer</button></div><p style="color:var(--mute);font-size:14px">Sélectionne tout et copie.</p><textarea class="ro" id="ta" readonly>${esc(txt)}</textarea>`); $('ta').select();
     });
@@ -1358,7 +1367,7 @@ function copyForSheets(){
 }
 
 /* ---------- sauvegarde + import d'images ---------- */
-let tmr; function saveSoon(now){ if(IS_DEMO) return; clearTimeout(tmr); tmr=setTimeout(()=>fetch('/api/cards',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cards)}).catch(()=>toast('Sauvegarde impossible')),now?0:400); }
+let tmr; function saveSoon(now){ if(IS_DEMO){ if(WEB){ try{ localStorage.setItem('pnl_web_cards',JSON.stringify(cards.map(c=>Object.assign({},c,{img:undefined})))); }catch(e){ toast('Sauvegarde impossible'); } } return; } clearTimeout(tmr); tmr=setTimeout(()=>fetch('/api/cards',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cards)}).catch(()=>toast('Sauvegarde impossible')),now?0:400); }
 
 async function handleFiles(list){
   if(IS_DEMO){ toast('L\'import d\'images est dans l\'application locale'); return; }
