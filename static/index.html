@@ -463,7 +463,7 @@ const EN = {
 'Connecte ton adresse : tes trades Terminal, Axiom et GMGN arrivent tout seuls.':'Connect your address: your Terminal, Axiom and GMGN trades arrive on their own.','La synchronisation fonctionne dans l\'application locale.':'Syncing works in the local app.','La synchronisation fonctionne dans l’application locale.':'Syncing works in the local app.',
 'Lecture seule. L\'adresse est publique : personne ne peut déplacer tes fonds avec. Ne colle jamais ta phrase secrète ni ta clé privée, l\'application les refuse.':'Read-only. The address is public: nobody can move your funds with it. Never paste your seed phrase or private key, the app rejects them.',
 'Copie ton adresse.':'Copy your address.','Dans Terminal : Wallet, puis copie l\'adresse. Axiom et GMGN utilisent le même wallet si tu l\'as importé.':'In Terminal: Wallet, then copy the address. Axiom and GMGN use the same wallet if you imported it.','Clé Helius : facultative.':'Helius key: optional.','Sans clé, on lit tes 300 dernières transactions (plus lent). Avec une clé gratuite (helius.dev), tout l\'historique, bien plus vite.':'Without a key, we read your last 300 transactions (slower). With a free key (helius.dev), your full history, much faster.','Synchronise.':'Sync.','Chaque achat et chaque vente est regroupé en trade, avec l\'heure et la durée.':'Every buy and sell is grouped into a trade, with time and duration.',
-'Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Tout reste sur ton ordinateur.':'Terminal, Axiom or GMGN. We rank them, compute your stats and keep your trading journal. Everything stays on your computer.','Dépose tes PNL cards.':'Drop your PNL cards.','Choisir des images':'Choose images','ou glisse-les ici':'or drag them here','Importer un CSV ou un Google Sheets':'Import a CSV or a Google Sheet','Connecter mon wallet':'Connect my wallet','Aucun trade lu pour l\'instant':'No trade read yet',
+'Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Les images sont lues dans ton navigateur : rien n\'est envoyé, tout reste sur cet appareil.':'Terminal, Axiom or GMGN. We rank them, compute your stats and keep your trading journal. Images are read in your browser: nothing is uploaded, everything stays on this device.','Lecture des images…':'Reading images…','Impossible de lire les images. Le lecteur n\'a pas pu se charger (connexion ?). Recharge la page et réessaie, ou saisis tes trades à la main.':'Could not read the images. The reader failed to load (connection?). Reload the page and try again, or enter your trades by hand.','Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Tout reste sur ton ordinateur.':'Terminal, Axiom or GMGN. We rank them, compute your stats and keep your trading journal. Everything stays on your computer.','Dépose tes PNL cards.':'Drop your PNL cards.','Choisir des images':'Choose images','ou glisse-les ici':'or drag them here','Importer un CSV ou un Google Sheets':'Import a CSV or a Google Sheet','Connecter mon wallet':'Connect my wallet','Aucun trade lu pour l\'instant':'No trade read yet',
 'Les images restent sur cet ordinateur':'Images stay on this computer','Démo · données fictives':'Demo · sample data','Manuel':'Manual','Autre':'Other',
 'Dépose des images PNG ou JPG':'Drop PNG or JPG images','Enregistré':'Saved','Supprimé':'Deleted','Trade ajouté':'Trade added','Entre un ticker':'Enter a ticker','Entre un PnL':'Enter a PnL','Entre un PnL, ou investi + reçu':'Enter a PnL, or invested + received','Colle l\'adresse de ton wallet.':'Paste your wallet address.','Connexion à Helius…':'Connecting to Helius…','Reconstruction des trades…':'Rebuilding trades…','Récupération des noms de tokens…':'Fetching token names…','Connexion annulée':'Connection cancelled','Adresse récupérée (lecture seule)':'Address retrieved (read-only)','Phantom introuvable dans ce navigateur':'Phantom not found in this browser',
 'Objectifs enregistrés':'Goals saved','Objectifs effacés':'Goals cleared','CSV copié':'CSV copied','Copié : colle dans Sheets (Ctrl+V)':'Copied: paste into Sheets (Ctrl+V)','Rien à importer':'Nothing to import','Tableau vide':'Empty table','Sauvegarde impossible':'Could not save','Touche les cartes à supprimer':'Tap the cards to delete','Échec de l\'import':'Import failed','L\'import d\'images est dans l\'application locale':'Image import is in the local app','Le lien fonctionne dans l\'application locale.':'The link works in the local app.',
@@ -655,16 +655,10 @@ function render(o){
   const all=trades(), bad=failed(), periods=cards.filter(c=>c.type==='period');
   const banner = notice?`<div class="banner">${notice}</div>`:'';
   if(!all.length && !bad.length && !periods.length && S.view!=='wallet'){
-    if(WEB){
-      main.innerHTML=`<section class="start"><h1>Ton journal de trading memecoins.</h1><p>Ajoute tes trades à la main ou importe un CSV / Google Sheets : stats, calendrier et courbe de capital se font tout seuls. Tes données restent dans ce navigateur. Pour lire tes PNL cards en image et connecter ton wallet, télécharge l'application locale.</p>${banner}
-      <div style="display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap"><button class="pill" id="emptyTrade" type="button">Ajouter un trade</button></div>
-      <div style="margin-top:20px"><a class="link" href="${GH}" target="_blank" rel="noopener">Télécharger l'application locale</a></div></section><div class="credit"><span>Fait par <a href="https://x.com/wthejulio" target="_blank" rel="noopener">wthejulio</a></span><i></i><a href="${GH}" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
-      $('emptyTrade').onclick=openAdd; return;
-    }
-    main.innerHTML=`<section class="start"><h1>Dépose tes PNL cards.</h1><p>Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Tout reste sur ton ordinateur.</p>${banner}
+    main.innerHTML=`<section class="start"><h1>Dépose tes PNL cards.</h1><p>Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. ${WEB?'Les images sont lues dans ton navigateur : rien n\'est envoyé, tout reste sur cet appareil.':'Tout reste sur ton ordinateur.'}</p>${banner}
       <div class="drop" id="drop" role="button" tabindex="0"><b>Choisir des images</b><span>ou glisse-les ici</span><div class="prog" id="prog"><i></i></div></div>
       <div style="display:flex;gap:24px;justify-content:center;margin-top:24px;flex-wrap:wrap"><button class="link" id="emptyTrade" type="button">Ajouter un trade à la main</button><button class="link" id="emptyMenu" type="button">Importer un CSV ou un Google Sheets</button><button class="link" id="emptyWallet" type="button">Connecter mon wallet</button></div></section>`;
-    bindDrop(); $('emptyMenu').onclick=openAdd; $('emptyWallet').onclick=()=>{ S.view='wallet'; render(); }; $('emptyTrade').onclick=()=>openSheet('new'); return;
+    bindDrop(); $('emptyMenu').onclick=openAdd; if(WEB) $('emptyTrade').textContent='Ajouter un trade'; $('emptyWallet').onclick=()=>{ S.view='wallet'; render(); }; $('emptyTrade').onclick=WEB?openAdd:()=>openSheet('new'); return;
   }
   if(!S.day) S.day = initDay(all);
   const tabs=[['dash','Dashboard'],['journal','Journal'],['cards','Cartes'],['wallet','Wallet']];
@@ -1234,11 +1228,11 @@ function openPanel(html){ $('sheet').innerHTML=html; $('sheet').classList.add('o
 function openAdd(){
   openPanel(`<div class="sh-top"><div class="tk">Ajouter</div><button class="link" id="x" type="button">Fermer</button></div><div class="menu">
     <button class="mi" id="a_trade" type="button"><span><b>Un trade à la main</b><small>Ticker, PnL, setup, note</small></span><i>›</i></button>
-    <button class="mi" id="a_img" type="button"><span><b>Des cartes PnL</b><small>${WEB?'Lecture d\'images : dans l\'application locale':'Images PNG ou JPG : Terminal, Axiom, GMGN'}</small></span><i>›</i></button>
+    <button class="mi" id="a_img" type="button"><span><b>Des cartes PnL</b><small>Images PNG ou JPG : Terminal, Axiom, GMGN</small></span><i>›</i></button>
     <button class="mi" id="a_csv" type="button"><span><b>Un fichier CSV</b><small>Exporté d'ici, de Sheets ou d'Excel</small></span><i>›</i></button>
     <button class="mi" id="a_gs" type="button"><span><b>Un Google Sheets</b><small>Lien de partage ou copier-coller</small></span><i>›</i></button></div>`);
   $('a_trade').onclick=()=>{ closeSheet(); setTimeout(()=>openSheet('new'),120); };
-  $('a_img').onclick=()=>{ closeSheet(); if(WEB){ window.open(GH,'_blank','noopener'); return; } IS_DEMO?toast('L\'import d\'images est dans l\'application locale'):$('file').click(); };
+  $('a_img').onclick=()=>{ closeSheet(); (IS_DEMO&&!WEB)?toast('L\'import d\'images est dans l\'application locale'):$('file').click(); };
   $('a_csv').onclick=()=>{ closeSheet(); $('csv').click(); };
   $('a_gs').onclick=openSheetsImport;
 }
@@ -1367,34 +1361,51 @@ function copyForSheets(){
 }
 
 /* ---------- sauvegarde + import d'images ---------- */
-let tmr; function saveSoon(now){ if(IS_DEMO){ if(WEB){ try{ localStorage.setItem('pnl_web_cards',JSON.stringify(cards.map(c=>Object.assign({},c,{img:undefined})))); }catch(e){ toast('Sauvegarde impossible'); } } return; } clearTimeout(tmr); tmr=setTimeout(()=>fetch('/api/cards',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cards)}).catch(()=>toast('Sauvegarde impossible')),now?0:400); }
+function loadOcr(){ return window.PNLOCR?Promise.resolve():new Promise((ok,ko)=>{ const s=document.createElement('script'); s.src='ocr.js'; s.onload=ok; s.onerror=()=>ko(new Error('ocr')); document.head.appendChild(s); }); }
+/* version web : miniatures des cartes gardées dans IndexedDB (le reste dans localStorage) */
+const IMGDB={ db:null,
+  open(){ return this.db||(this.db=new Promise((ok,ko)=>{ try{ const q=indexedDB.open('pnl_web',1); q.onupgradeneeded=()=>q.result.createObjectStore('img'); q.onsuccess=()=>ok(q.result); q.onerror=()=>ko(q.error); }catch(e){ ko(e); } })); },
+  async all(){ const db=await this.open(); return new Promise(ok=>{ const o={}, q=db.transaction('img').objectStore('img').openCursor(); q.onsuccess=()=>{ const c=q.result; if(c){ o[c.key]=c.value; c.continue(); } else ok(o); }; q.onerror=()=>ok(o); }); },
+  async sync(list){ try{ const db=await this.open(), tx=db.transaction('img','readwrite'), st=tx.objectStore('img'), keep=new Set(list.filter(c=>c.img).map(c=>c.id));
+      list.forEach(c=>{ if(c.img&&!c._saved){ st.put(c.img,c.id); c._saved=1; } });
+      st.openKeyCursor().onsuccess=e=>{ const c=e.target.result; if(c){ if(!keep.has(c.key)) st.delete(c.key); c.continue(); } }; }catch(e){} }
+};
+let tmr; function saveSoon(now){ if(IS_DEMO){ if(WEB){ try{ localStorage.setItem('pnl_web_cards',JSON.stringify(cards.map(c=>{ const o=Object.assign({},c); delete o.img; delete o._saved; return o; }))); IMGDB.sync(cards); }catch(e){ toast('Sauvegarde impossible'); } } return; } clearTimeout(tmr); tmr=setTimeout(()=>fetch('/api/cards',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cards)}).catch(()=>toast('Sauvegarde impossible')),now?0:400); }
 
 async function handleFiles(list){
-  if(IS_DEMO){ toast('L\'import d\'images est dans l\'application locale'); return; }
+  if(IS_DEMO&&!WEB){ toast('L\'import d\'images est dans l\'application locale'); return; }
   const files=[...list].filter(f=>/\.(png|jpe?g|webp)$/i.test(f.name)); if(!files.length){ toast('Dépose des images PNG ou JPG'); return; }
   let prog=$('prog'); if(prog) prog.style.display='block';
   let done=0, dup=0, okN=0, badN=0, noTess=false, srvErr=false;
   const seen=new Set(trades().map(kk));
-  for(let i=0;i<files.length;i+=4){
+  const take=res=>res.forEach(r=>{
+    if(r.error==='no_tesseract') noTess=true;
+    const good=(r.type==='period')||ok(r);
+    if(!good){ badN++; cards.push(r); return; }
+    if(r.type==='trade'&&r.token&&seen.has(kk(r))){dup++;return;}
+    seen.add(kk(r)); okN++; cards.push(r);
+  });
+  if(WEB){
+    try{
+      await loadOcr();
+      toast('Lecture des images…');
+      const res=await PNLOCR.extract(files,(d,n)=>{ done=d; if(prog&&prog.firstElementChild) prog.firstElementChild.style.width=(d/n*100)+'%'; });
+      take(res);
+    }catch(e){ srvErr=true; }
+  } else for(let i=0;i<files.length;i+=4){
     const batch=files.slice(i,i+4), fd=new FormData();
     batch.forEach(f=>fd.append('files',f)); fd.append('mtimes',JSON.stringify(batch.map(f=>f.lastModified)));
     try{
       const resp=await fetch('/api/extract',{method:'POST',body:fd});
       if(!resp.ok) throw new Error('http '+resp.status);
-      const res=await resp.json();
-      res.forEach(r=>{
-        if(r.error==='no_tesseract') noTess=true;
-        const good=(r.type==='period')||ok(r);
-        if(!good){ badN++; cards.push(r); return; }
-        if(r.type==='trade'&&r.token&&seen.has(kk(r))){dup++;return;}
-        seen.add(kk(r)); okN++; cards.push(r);
-      });
+      take(await resp.json());
     }catch(e){ srvErr=true; break; }
     done+=batch.length;
     if(prog&&prog.firstElementChild) prog.firstElementChild.style.width=(done/files.length*100)+'%';
   }
   notice='';
-  if(srvErr) notice='<b>Le serveur local ne répond pas.</b> Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.';
+  if(srvErr&&WEB) notice='<b>Impossible de lire les images.</b> Le lecteur n\'a pas pu se charger (connexion ?). Recharge la page et réessaie, ou saisis tes trades à la main.';
+  else if(srvErr) notice='<b>Le serveur local ne répond pas.</b> Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.';
   else if(noTess) notice='<b>Tesseract n\'est pas installé.</b> C\'est le moteur qui lit les images. Installe-le (winget install --id UB-Mannheim.TesseractOCR), puis relance start.bat.';
   else if(badN) notice=`<b>${badN} carte${badN>1?'s':''} non lue${badN>1?'s':''}.</b> Saisis-les à la main dans l'onglet Cartes, ou vérifie qu'il s'agit bien d'une carte Terminal, Axiom ou GMGN (pas d'une capture d'écran).`;
   if(okN&&!trades().some(c=>c.dateMs&&isoDay(c.dateMs)===S.day)) S.day=null;
@@ -1415,6 +1426,7 @@ window.addEventListener('dragleave',()=>{const d=$('drop'); if(d) d.classList.re
 window.addEventListener('drop',e=>{e.preventDefault(); const d=$('drop'); if(d) d.classList.remove('over'); const fs=[...e.dataTransfer.files]; const csv=fs.find(f=>/\.(csv|tsv)$/i.test(f.name)); if(csv) csv.text().then(importTable); else handleFiles(fs);});
 $('shade').onclick=closeSheet; document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
 
+if(WEB) IMGDB.all().then(m=>{ let n=0; cards.forEach(c=>{ if(m[c.id]&&!c.img){ c.img=m[c.id]; c._saved=1; n++; } }); if(n) render({noAnim:true}); }).catch(()=>{});
 if(!IS_DEMO) fetch('/api/cards').then(r=>r.json()).then(d=>{ cards=d; render(); }).catch(()=>{});
 try{ const v=sessionStorage.getItem('pnl_view'); if(v){ S.view=v; sessionStorage.removeItem('pnl_view'); } }catch(e){}
 render(); trDom(document.body);

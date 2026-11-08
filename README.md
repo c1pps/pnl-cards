@@ -42,3 +42,5 @@ Lecture seule : l'application refuse les phrases secrètes et les clés privées
 ## Licence
 
 MIT, voir [LICENSE](LICENSE).
+
+> **Version web** : la lecture des PNL cards (Terminal, Axiom, GMGN) fonctionne aussi dans le navigateur, via Tesseract en WebAssembly (`docs/ocr.js`). Les images ne quittent jamais l'appareil. La synchronisation du wallet reste dans l'application locale.
