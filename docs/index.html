@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PnL Cards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Système : grille de 8px, un rayon de carte (20), surfaces s1/s2, hairlines 1px.
+   Vert/rouge réservés aux gains/pertes. Chiffres tabulaires partout. */
+:root{
+  --bg:#07080b; --s1:#0e1116; --s2:#141922; --s3:#1a202b; --line:#1a1f28; --line2:#262d39;
+  --text:#f4f5f7; --mute:#8089a0; --faint:#4f5768;
+  --gain:#5fe3b0; --loss:#ff7c88; --warn:#f2c164; --blue:#7aa2ff;
+  --r:20px; --r2:12px;
+  --font:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{min-height:100vh;background:var(--bg)}
+body::before{content:'';position:fixed;inset:-20% -10% auto -10%;height:70vh;background:radial-gradient(600px 320px at 30% 0,#13241e 0,transparent 70%),radial-gradient(520px 300px at 75% 10%,#101a2b 0,transparent 70%);pointer-events:none;z-index:-1;animation:drift 18s ease-in-out infinite alternate}
+button,input,select,textarea{font:inherit;color:inherit}
+.n{font-variant-numeric:tabular-nums}
+.gain{color:var(--gain)} .loss{color:var(--loss)}
+:focus-visible{outline:2px solid var(--text);outline-offset:3px;border-radius:8px}
+
+.page{max-width:1040px;margin:0 auto;padding:0 24px 112px}
+.top{display:flex;justify-content:space-between;align-items:center;height:72px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:17px}
+.brand i{width:10px;height:10px;border-radius:3px;background:var(--gain);box-shadow:0 0 18px var(--gain)}
+.pill{background:var(--text);color:#0a0b0e;border:0;border-radius:999px;height:40px;padding:0 20px;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.pill:hover{background:#fff}
+.link{background:none;border:0;color:var(--mute);cursor:pointer;padding:8px 0;font-weight:600;font-size:14px}
+.link:hover{color:var(--text)}
+.actions{display:flex;gap:8px;align-items:center}
+.ico{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:var(--s1);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.ico:hover{background:var(--s2)}
+
+/* navigation */
+.navwrap{position:sticky;top:0;z-index:20;padding:8px 0 16px;margin-bottom:8px;background:linear-gradient(var(--bg) 70%,transparent)}
+.tabs{display:flex;gap:4px;padding:4px;background:rgba(14,17,22,.8);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px;width:max-content;max-width:100%;position:relative}
+.tab{position:relative;z-index:1;border:0;background:transparent;color:var(--mute);height:40px;padding:0 24px;border-radius:999px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+.tab.on{color:#0a0b0e}
+.ind{position:absolute;top:4px;bottom:4px;left:0;width:0;border-radius:999px;background:var(--text);transition:transform .4s cubic-bezier(.3,.8,.2,1),width .4s cubic-bezier(.3,.8,.2,1)}
+
+/* accueil */
+.start{padding:88px 0 0;text-align:center;max-width:640px;margin:0 auto}
+.start h1{font-size:clamp(36px,8vw,56px);line-height:1.04;letter-spacing:-.04em;margin:0 0 16px;font-weight:800}
+.start p{color:var(--mute);margin:0 auto 32px;max-width:420px}
+.drop{border:1px dashed var(--line2);background:var(--s1);border-radius:var(--r);padding:56px 24px;cursor:pointer}
+.drop:hover,.drop.over{border-color:#3a4252;background:var(--s2)}
+.drop b{display:block;font-size:18px;font-weight:700;margin-bottom:4px}
+.drop span{color:var(--mute);font-size:14px}
+.prog{height:3px;background:var(--line);border-radius:2px;margin-top:24px;overflow:hidden;display:none}
+.prog i{display:block;height:100%;width:0;background:var(--text);transition:width .2s}
+.banner{margin:0 0 24px;padding:16px 20px;border:1px solid var(--line2);border-radius:var(--r2);background:var(--s1);font-size:14px;color:var(--mute);text-align:left}
+.banner b{color:var(--warn);font-weight:700}
+
+/* titres de page */
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:16px 0 24px}
+.eyebrow{color:var(--mute);font-size:14px;font-weight:600;margin-bottom:8px}
+.big{display:flex;align-items:center;gap:16px;font-size:clamp(48px,11vw,80px);line-height:1;font-weight:800;letter-spacing:-.045em}
+.solm{width:.5em;height:.5em;flex:none;object-fit:contain}
+.solchip{font-size:.26em;letter-spacing:.02em;font-weight:700;color:var(--mute);border:1px solid var(--line2);border-radius:999px;padding:.35em .9em;background:var(--s1)}
+.sub2{color:var(--mute);font-size:14px;margin-top:12px}
+.sub2 b{font-weight:700}
+
+/* surfaces */
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);padding:24px;min-width:0}
+.card h3{margin:0;font-size:13px;font-weight:700;color:var(--mute);letter-spacing:.05em;text-transform:uppercase}
+.card .hd{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px;min-height:32px}
+.sec{margin-top:32px}
+.sec>h2,.h2{font-size:13px;font-weight:700;color:var(--mute);letter-spacing:.05em;text-transform:uppercase;margin:0 0 16px}
+.g2{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-top:16px;align-items:stretch}
+.g2e{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;align-items:start}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.kpi{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:20px 24px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03);min-width:0}
+.kpi .k{font-size:13px;color:var(--mute);font-weight:600;margin-bottom:8px}
+.kpi .v{display:flex;align-items:center;gap:8px;font-size:26px;font-weight:800;letter-spacing:-.03em;white-space:nowrap}
+.kpi .v .solm{width:16px;height:16px}
+.kpi .d{font-size:13px;color:var(--mute);margin-top:4px}
+.box{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.line{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;gap:16px}
+.line+.line{border-top:1px solid var(--line)}
+.line .m{color:var(--mute);font-size:13px}
+.empty{color:var(--mute);padding:32px 24px;text-align:center;font-size:14px}
+
+/* graphiques */
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.axis{fill:var(--faint);font-size:11px;font-weight:600;font-family:var(--font)}
+.grid{stroke:var(--line);stroke-width:1}
+.zero{stroke:var(--line2);stroke-width:1;stroke-dasharray:3 4}
+.eqline{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.tip{position:absolute;top:0;pointer-events:none;background:var(--s3);border:1px solid var(--line2);border-radius:12px;padding:8px 12px;font-size:13px;white-space:nowrap;opacity:0;transform:translate(-50%,-110%);transition:opacity .15s;z-index:3}
+.tip b{display:block;font-size:15px}
+.tip span{color:var(--mute)}
+.brect{transform-box:fill-box}
+
+/* calendrier */
+.cal{display:grid;grid-template-columns:repeat(7,1fr) 64px;gap:6px}
+.cal .dh{font-size:11px;font-weight:700;color:var(--faint);text-align:center;letter-spacing:.04em;text-transform:uppercase;padding-bottom:4px}
+.cd{position:relative;aspect-ratio:1/.82;border-radius:10px;border:1px solid transparent;background:var(--s2);color:var(--text);padding:6px 4px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;cursor:default;min-width:0}
+.cd.has{cursor:pointer;border-color:rgba(255,255,255,.04)}
+.cd.has:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.18)}
+.cd.out{background:transparent}
+.cd.today{box-shadow:0 0 0 1.5px var(--text)}
+.cd .dn{font-size:11px;font-weight:700;color:var(--mute);align-self:flex-start;padding-left:4px}
+.cd .dv{font-size:12px;font-weight:800;letter-spacing:-.02em;padding-bottom:2px}
+.cd.has .dn{color:rgba(255,255,255,.7)}
+.cw{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border-radius:10px;background:transparent;border:1px dashed var(--line2)}
+.cnav{display:flex;align-items:center;gap:8px}
+.cnav .ico{width:32px;height:32px}
+.cnav b{min-width:128px;text-align:center;font-size:15px}
+
+/* objectif */
+.ring{position:relative;width:132px;height:132px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .t{stroke:var(--s3)}
+.ring .p{transition:stroke-dashoffset 1.2s cubic-bezier(.2,.7,.2,1)}
+.ring .c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:22px;letter-spacing:-.03em;line-height:1.1}
+.ring .c small{font-size:12px;color:var(--mute);font-weight:600;letter-spacing:0}
+.goal{display:flex;gap:24px;align-items:center}
+.facts{display:grid;gap:0;flex:1;min-width:0}
+.fact{display:flex;justify-content:space-between;gap:12px;padding:12px 0;font-size:14px}
+.fact+.fact{border-top:1px solid var(--line)}
+.fact span:first-child{color:var(--mute);white-space:nowrap}
+.fact b{font-weight:700;white-space:nowrap}
+.alertchip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,124,136,.1);color:var(--loss);border:1px solid rgba(255,124,136,.25);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;margin-top:16px}
+
+/* barres horizontales */
+.hb{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:16px;align-items:center;padding:8px 0}
+.hb .l{font-size:13px;font-weight:700;color:var(--mute)}
+.track{height:8px;border-radius:4px;background:var(--s2);overflow:hidden}
+.track i{display:block;height:100%;border-radius:4px;opacity:.85}
+.hb .v{font-size:14px;font-weight:700;min-width:64px;text-align:right}
+.mrow{display:grid;grid-template-columns:200px minmax(0,1fr) auto;align-items:center;column-gap:16px;padding:16px 24px}
+.mrow+.mrow{border-top:1px solid var(--line)}
+.mrow .l{font-weight:700;font-size:15px}
+.mrow .m{font-size:13px;color:var(--mute)}
+
+/* journal */
+.daynav{display:flex;align-items:center;gap:8px}
+.daynav h1{font-size:clamp(24px,5vw,34px);letter-spacing:-.035em;font-weight:800;margin:0;min-width:0}
+.daynav .ico{width:40px;height:40px;flex:none}
+.dateinp{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+.seg{display:inline-flex;gap:2px;padding:3px;background:var(--s1);border:1px solid var(--line);border-radius:999px}
+.seg button{border:0;background:transparent;color:var(--mute);height:32px;padding:0 16px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer}
+.seg button.on{background:var(--s3);color:var(--text)}
+.qa{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) 96px auto;gap:8px;align-items:center}
+.qa input,.qa select{height:44px;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r2);padding:0 14px;font-size:14px;min-width:0;width:100%}
+.qa select{appearance:none;-webkit-appearance:none;cursor:pointer;font-weight:600}
+.qa .pill{height:44px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14px;min-width:560px}
+.tbl th{text-align:left;font-size:11px;color:var(--mute);font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:14px 16px;border-bottom:1px solid var(--line2);white-space:nowrap;cursor:pointer;user-select:none;background:#0b0e13}
+.tbl th:hover{color:var(--text)}
+.tbl th.on{color:var(--text)}
+.tbl th .ar{display:inline-block;margin-left:4px;opacity:.9}
+.tbl td{padding:12px 16px;border-bottom:1px solid var(--line);white-space:nowrap;vertical-align:middle}
+.tbl tr.r{cursor:pointer;transition:background .12s}
+.tbl tr.r:hover td{background:var(--s2)}
+.tbl .num{text-align:right}
+.tbl th.num{text-align:right}
+.tbl tfoot td{font-weight:800;border-bottom:0;background:#0b0e13;padding:16px}
+.tbl .tk{display:flex;align-items:center;gap:12px;font-weight:700}
+.tbl .tk .th{width:40px;height:28px;border-radius:6px;font-size:10px}
+.tagp{display:inline-block;height:22px;line-height:20px;padding:0 10px;border-radius:999px;background:var(--s2);border:1px solid var(--line2);font-size:12px;font-weight:600;color:var(--mute);margin-right:4px}
+.tagp.on{background:var(--text);color:#0a0b0e;border-color:var(--text);cursor:pointer}
+.tagp.pick{cursor:pointer}
+.tagp.pick:hover{border-color:#4a5366;color:var(--text)}
+.tagp.pick.on{background:var(--text);color:#0a0b0e}
+.dim{color:var(--mute)}
+
+/* cartes / classement */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--s1);border:1px solid var(--line);border-radius:var(--r)}
+.stat{padding:20px 24px;min-width:0}
+.stat+.stat{border-left:1px solid var(--line)}
+.stat .k{font-size:13px;color:var(--mute);font-weight:600;margin-bottom:4px}
+.stat .v{font-size:19px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note{margin:16px 0 0;color:var(--mute);font-size:14px;max-width:560px}
+.tools{margin-top:24px;display:grid;gap:12px}
+.search{width:100%;height:48px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r2);padding:0 16px;font-size:15px}
+.search::placeholder{color:var(--faint)}
+.selrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.sel{height:44px;width:100%;background:var(--s1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%238089a0' stroke-width='2'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E") no-repeat right 14px center;border:1px solid var(--line);border-radius:var(--r2);padding:0 36px 0 14px;font-size:14px;font-weight:600;appearance:none;-webkit-appearance:none;cursor:pointer;text-overflow:ellipsis}
+.sel option{background:#13171e;color:var(--text)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{height:36px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--mute);font-weight:700;font-size:14px;cursor:pointer}
+.chip.on{background:var(--s2);border-color:var(--line2);color:var(--text)}
+.chips .link{margin-left:auto}
+.row{display:grid;grid-template-columns:24px 64px minmax(0,1fr) auto;align-items:center;column-gap:16px;padding:12px 24px 12px 20px;min-height:76px;cursor:pointer}
+.row+.row{border-top:1px solid var(--line)}
+.row:hover{background:var(--s2)}
+.row .r{color:var(--faint);font-size:14px;font-weight:700;text-align:center;display:flex;justify-content:center}
+.th{width:64px;height:44px;border-radius:8px;background:var(--s2) center/cover no-repeat;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;letter-spacing:.02em;flex:none}
+.th.av{background:linear-gradient(135deg,hsl(var(--h) 42% 24%),hsl(var(--h) 38% 11%));color:hsl(var(--h) 80% 76%);border-color:hsl(var(--h) 35% 26%)}
+.mid{min-width:0}
+.t{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px}
+.t .dot{width:6px;height:6px;border-radius:50%;background:var(--warn);flex:none}
+.sub{font-size:13px;color:var(--mute);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar{height:3px;border-radius:2px;margin-top:8px;opacity:.55;min-width:6px}
+.p{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;letter-spacing:-.01em;white-space:nowrap}
+.p .solm{width:15px;height:15px}
+.unread .row{grid-template-columns:64px minmax(0,1fr) auto}
+.unread .t{font-weight:600;color:var(--mute)}
+.unread .p{color:var(--warn);font-size:14px}
+.more{display:block;margin:16px auto 0}
+.ck{width:22px;height:22px;border-radius:50%;border:2px solid var(--line2);display:inline-block;flex:none}
+.ck.on{background:var(--gain);border-color:var(--gain);box-shadow:inset 0 0 0 4px var(--s1)}
+.row.picked{background:var(--s2)}
+.bulk{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;gap:8px;align-items:center;background:var(--s3);border:1px solid var(--line2);border-radius:999px;padding:8px;z-index:30;box-shadow:0 12px 40px rgba(0,0,0,.5);max-width:calc(100% - 24px)}
+.bulk .btn{height:40px;padding:0 18px;flex:none;font-size:14px}
+.bulk .danger{background:var(--loss);border-color:var(--loss);color:#1a0a0c}
+.foot{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--faint);font-size:13px}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.tile{background:var(--s1);padding:20px 24px;min-width:0}
+.tile .k{font-size:13px;color:var(--mute);font-weight:600;margin-bottom:4px}
+.tile .v{font-size:20px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* fiche */
+.shade{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
+.shade.on{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;width:min(600px,100%);background:var(--bg);border:1px solid var(--line2);border-bottom:0;border-radius:28px 28px 0 0;padding:24px 24px 32px;z-index:41;transform:translate(-50%,105%);transition:transform .45s cubic-bezier(.32,.72,0,1);max-height:92%;overflow-y:auto}
+.sheet.open{transform:translate(-50%,0)}
+.sh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.sh-top .tk{font-size:13px;color:var(--mute);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.pc{position:relative;border-radius:var(--r);border:1px solid var(--line2);padding:28px 24px 0;background:linear-gradient(160deg,#16201d 0,#0f1318 55%);overflow:hidden}
+.pc.neg{background:linear-gradient(160deg,#241619 0,#0f1318 55%)}
+.pc .name{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.pc .tg{margin-top:8px}
+.pc .lab{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--mute);margin:20px 0 4px}
+.pc .amt{display:flex;align-items:center;gap:12px;font-size:clamp(40px,11vw,60px);font-weight:800;letter-spacing:-.04em;line-height:1.05}
+.pc .amt .solm{width:.55em;height:.55em}
+.pc .amt .solchip{font-size:.28em}
+.pc .eq{margin-top:4px;color:var(--mute);font-size:14px}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);margin:28px -24px 0;border-top:1px solid var(--line2)}
+.cols>div{padding:16px 24px;min-width:0}
+.cols>div+div{border-left:1px solid var(--line2)}
+.cols .k{font-size:12px;color:var(--mute);font-weight:600;margin-bottom:2px}
+.cols .v{font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shot{display:block;width:100%;border-radius:var(--r2);margin-top:16px;border:1px solid var(--line2)}
+.alert{color:var(--warn);font-size:14px;margin:16px 0 0}
+.nt{color:var(--mute);font-size:14px;margin:16px 0 0;padding:16px;border:1px solid var(--line);border-radius:var(--r2);background:var(--s1)}
+.edit{display:none;margin-top:8px}
+.edit label,.lbl{display:block;font-size:13px;color:var(--mute);font-weight:600;margin:16px 0 6px}
+.edit input,.edit select,.fld{width:100%;height:48px;background:var(--s1);border:1px solid var(--line2);border-radius:var(--r2);padding:0 16px;font-size:15px}
+.edit textarea,textarea.fld{height:96px;background:var(--s1);border:1px solid var(--line2);border-radius:var(--r2);padding:12px 16px;font-size:14px;width:100%}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btns{display:flex;gap:12px;margin-top:24px}
+.btn{flex:1;height:48px;border-radius:999px;border:1px solid var(--line2);background:transparent;font-weight:700;cursor:pointer}
+.btn.main{background:var(--text);color:#0a0b0e;border-color:var(--text)}
+.btn.red{color:var(--loss);border-color:#3a2226}
+.btn.red.sure{background:var(--loss);color:#1a0a0c;border-color:var(--loss)}
+.soon{margin-top:24px;color:var(--faint);font-size:13px;text-align:center}
+.hint{color:var(--mute);font-size:13px;margin:8px 0 0}
+.menu{display:grid}
+.mi{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:16px 0;cursor:pointer;color:var(--text)}
+.mi b{font-weight:700;font-size:15px;display:block}
+.mi small{color:var(--mute);font-size:13px;display:block;margin-top:2px}
+.mi.red b{color:var(--loss)}
+.mi i{color:var(--faint);font-style:normal}
+.toast{position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:opacity .25s,transform .35s cubic-bezier(.2,.9,.3,1.2);background:var(--text);color:#0a0b0e;border-radius:999px;padding:12px 20px;font-weight:700;font-size:14px;z-index:60;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+textarea.ro{width:100%;height:220px;background:var(--s1);border:1px solid var(--line2);border-radius:var(--r2);color:var(--text);padding:12px;font-size:12px}
+
+/* ---------- animations ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+@keyframes grow{from{transform:scaleX(0)}}
+@keyframes growy{from{transform:scaleY(0)}}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes fade{from{opacity:0}}
+@keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes drift{from{transform:translate3d(-3%,0,0) scale(1)}to{transform:translate3d(3%,6%,0) scale(1.08)}}
+@keyframes sweep{from{background-position:-200% 0}to{background-position:200% 0}}
+.anim .start h1{animation:rise .7s cubic-bezier(.2,.7,.2,1) backwards}
+.anim .start p{animation:rise .7s .08s cubic-bezier(.2,.7,.2,1) backwards}
+.anim .start .drop{animation:rise .7s .16s cubic-bezier(.2,.7,.2,1) backwards}
+.anim .banner,.anim .ph{animation:rise .6s cubic-bezier(.2,.7,.2,1) backwards}
+.anim .tabs{animation:rise .6s .06s cubic-bezier(.2,.7,.2,1) backwards}
+.anim .kpi,.anim .card,.anim .stats,.anim .tools,.anim .sec,.anim .box,.anim .tiles{animation:rise .65s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*70ms + 120ms)}
+.anim .row,.anim .mrow,.anim .line,.anim .tbl tbody tr{animation:rise .55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*34ms + 300ms)}
+.anim .bar,.anim .track i{transform-origin:left;animation:grow .9s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*38ms + 450ms)}
+.anim .eqline{stroke-dasharray:1;animation:draw 1.6s .25s cubic-bezier(.4,.1,.2,1) backwards}
+.anim .eqarea{animation:fade 1.2s .8s backwards}
+.anim .brect{transform-origin:center bottom;animation:growy .8s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*18ms + 300ms)}
+.anim .brect.neg{transform-origin:center top}
+.anim .cd.has{animation:rise .5s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*14ms + 200ms)}
+.row,.mrow{transition:background .15s,opacity .25s,transform .25s}
+.row:hover{transform:translateX(3px)}
+.row.out{opacity:0;transform:translateX(36px)}
+.th{transition:transform .25s cubic-bezier(.2,.9,.3,1.3),border-color .2s}
+.row:hover .th{transform:scale(1.07)}
+.pill,.btn,.chip,.tab,.ico,.mi,.seg button,.cd{transition:transform .15s,background .2s,color .2s,border-color .2s,opacity .2s}
+.pill:active,.btn:active,.chip:active,.tab:active,.ico:active{transform:scale(.95)}
+.pill:hover{transform:translateY(-1px)}
+.chip:hover,.ico:hover{border-color:#3a4252}
+.mi{transition:padding .2s}
+.mi:hover{padding-left:6px}
+.drop{transition:transform .25s,border-color .2s,background .2s,box-shadow .3s}
+.drop:hover,.drop.over{transform:translateY(-3px);box-shadow:0 18px 50px rgba(95,227,176,.07)}
+.drop.over{border-color:var(--gain)}
+.ck.on{animation:pop .35s cubic-bezier(.2,.9,.3,1.3)}
+.sheet.open .pc{animation:rise .6s .12s cubic-bezier(.2,.7,.2,1) backwards}
+.sheet.open .shot,.sheet.open .nt,.sheet.open .alert,.sheet.open .edit{animation:rise .6s .22s cubic-bezier(.2,.7,.2,1) backwards}
+.sheet.open .btns,.sheet.open .soon,.sheet.open .menu{animation:rise .6s .3s cubic-bezier(.2,.7,.2,1) backwards}
+.prog i{background:linear-gradient(90deg,var(--gain),#fff,var(--gain));background-size:200% 100%;animation:sweep 1.4s linear infinite}
+.bulk{animation:rise .35s cubic-bezier(.2,.9,.3,1.2)}
+
+@media(max-width:860px){
+  .g2,.g2e{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+  .tiles{grid-template-columns:1fr 1fr}
+  .qa{grid-template-columns:1fr 1fr}
+  .qa .pill{grid-column:1 / -1}
+}
+@media(max-width:560px){
+  .page{padding:0 16px 96px}
+  .tab{padding:0 16px}
+  .stats{grid-template-columns:1fr}
+  .stat{display:flex;justify-content:space-between;align-items:baseline;padding:16px 20px;gap:16px}
+  .stat+.stat{border-left:0;border-top:1px solid var(--line)}
+  .stat .k{margin:0}
+  .row{grid-template-columns:20px 56px minmax(0,1fr) auto;column-gap:12px;padding:12px 16px 12px 12px}
+  .th{width:56px;height:40px}
+  .unread .row{grid-template-columns:56px minmax(0,1fr) auto}
+  .mrow{grid-template-columns:minmax(0,1fr) auto;row-gap:8px;padding:16px 20px}
+  .mrow .track{grid-column:1 / -1;grid-row:2}
+  .card{padding:20px 16px}
+  .kpi{padding:16px}
+  .kpi .v{font-size:22px}
+  .cal{grid-template-columns:repeat(7,1fr);gap:4px}
+  .cal .cw,.cal .wh{display:none}
+  .cd .dv{font-size:10px}
+  .goal{flex-direction:column;align-items:stretch}
+  .ring{align-self:center}
+  .hide-m{display:none}
+  .tbl{min-width:0}
+  .tbl th,.tbl td{padding:12px 10px}
+  .tbl th:first-child,.tbl td:first-child{padding-left:16px}
+  .tbl th:last-child,.tbl td:last-child{padding-right:16px}
+  .tbl .tk .th{display:none}
+  .axis{font-size:22px}
+}
+/* ---- v5 : espacements, animations douces, wallet ---- */
+.pv{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px}
+.pv .solm{width:13px;height:13px}
+.tbl td.num .pv{width:100%}
+.soft .kpi,.soft .card,.soft .stats,.soft .tools,.soft .sec,.soft .box,.soft .tiles{animation:rise .4s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*40ms)}
+.soft .ph h1{animation:rise .4s cubic-bezier(.2,.7,.2,1) backwards}
+.soft.fwd .ph h1{animation-name:slideR}.soft.back .ph h1{animation-name:slideL}
+.soft .row,.soft .mrow,.soft .line,.soft .tbl tbody tr{animation:rise .38s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*22ms + 60ms)}
+.soft .bar,.soft .track i{transform-origin:left;animation:grow .6s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*28ms + 100ms)}
+.soft .brect{transform-origin:center bottom;animation:growy .55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*14ms + 80ms)}
+.soft .eqline{stroke-dasharray:1;animation:draw 1s cubic-bezier(.4,.1,.2,1) backwards}
+@keyframes slideR{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}
+.daynav h1{display:flex;align-items:center;min-height:40px;line-height:1.1}
+.daynav .ico svg{display:block}
+.opn{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);border:1px solid rgba(242,193,100,.35);border-radius:999px;padding:2px 8px;line-height:1.4}
+.g2>.card:last-child{display:flex;flex-direction:column}.g2>.card:last-child .goal{flex:1}
+.view-enter{animation:rise .45s cubic-bezier(.2,.7,.2,1) backwards}
+.wgrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+.wf label{display:block;font-size:13px;font-weight:600;color:var(--mute);margin:20px 0 8px}
+.wf label:first-child{margin-top:0}
+.wf input,.wf select{width:100%;height:48px;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r2);padding:0 16px;font-size:15px;color:var(--text);transition:border-color .2s,box-shadow .2s}
+.wf input:focus,.wf select:focus{outline:0;border-color:var(--gain);box-shadow:0 0 0 3px rgba(95,227,176,.12)}
+.wf select{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%238b93a3' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+.wact{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px;align-items:center}
+.wact .pill,.wact .chip{height:44px}
+.wact .chip{display:inline-flex;align-items:center}
+.wst{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:13px;color:var(--mute);min-height:20px}
+.wst .dotl{width:8px;height:8px;border-radius:50%;background:var(--gain);flex:none;box-shadow:0 0 0 0 rgba(95,227,176,.5);animation:ping 2s infinite}
+.wst.err{color:var(--loss)}.wst.err .dotl{background:var(--loss);animation:none}
+.wst.idle .dotl{background:var(--line2);animation:none}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(95,227,176,.45)}70%{box-shadow:0 0 0 8px rgba(95,227,176,0)}100%{box-shadow:0 0 0 0 rgba(95,227,176,0)}}
+.steps{counter-reset:s;display:grid;gap:16px;margin:0;padding:0;list-style:none}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;font-size:14px;line-height:1.5;color:var(--mute)}
+.steps li:before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--s2);border:1px solid var(--line2);color:var(--text);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+.steps b{color:var(--text);font-weight:700}
+.hold{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.hold:last-child{border-bottom:0;padding-bottom:0}.hold:first-child{padding-top:0}
+.hold .t{font-weight:700}.hold .s{font-size:13px;color:var(--mute);margin-top:2px}
+.safe{display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--mute);padding:16px 20px;border:1px solid var(--line);border-radius:var(--r2);background:rgba(95,227,176,.03);margin-top:16px}
+.safe svg{flex:none;margin-top:2px}
+@media(max-width:860px){.wgrid{grid-template-columns:1fr}}
+@media(max-width:560px){.tab{padding:0 12px;font-size:13px}.tabs{width:100%;justify-content:space-between}.tab{flex:1;padding:0 6px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <div class="brand"><i></i>PnL Cards</div>
+    <div class="actions"><button class="pill" id="addBtn" type="button"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#0a0b0e" stroke-width="2.4" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>Ajouter</button><button class="ico" id="menuBtn" type="button" aria-label="Menu"><svg width="18" height="4" viewBox="0 0 18 4" fill="#f4f5f7"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></svg></button></div>
+    <input id="file" type="file" accept="image/png,image/jpeg" multiple hidden>
+    <input id="csv" type="file" accept=".csv,.tsv,.txt,text/csv" hidden>
+  </div>
+  <main id="main"></main>
+</div>
+
+<div class="shade" id="shade"></div>
+<aside class="sheet" id="sheet" aria-label="Détail"></aside>
+<div class="toast" id="toast" role="status"></div>
+<script>
+const DEMO = [{"id": "demo001", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MOONCAT", "pnl": -0.2177, "invested": 1, "pct": -21.77, "dateMs": 1790528760000, "openedMs": 1790519559000, "holdSec": 9201, "ca": "6UT5G6cU4ud8Fhhe4deS4F3cw9KTAb8dLcukC7edhDQ7", "open": false, "tags": ["Rug"]}, {"id": "demo002", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "SOLPUP", "pnl": -0.1095, "invested": 0.25, "pct": -43.8, "dateMs": 1790616420000, "openedMs": 1790612006000, "holdSec": 4414, "ca": "sCmrG6dLaYyNoVKf58ZTBqNAYT3j5qcdsyuMNmPfYetW", "open": false, "tags": []}, {"id": "demo003", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "WOJAK9", "pnl": -0.128, "invested": 0.3, "pct": -42.67, "dateMs": 1790622240000, "openedMs": 1790619104000, "holdSec": 3136, "ca": "2WPBg8Y4ErK9pGSSxY6BVScJy9uUxcJnTPkyRFA6CAFj", "open": false, "tags": []}, {"id": "demo004", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "PONKE", "pnl": 0.3983, "invested": 0.25, "pct": 159.32, "dateMs": 1790586540000, "openedMs": 1790556941000, "holdSec": 29599, "ca": "9mwZgikp4WzxrxktcSSSS7XhS4D5EVB8Nf471dAb7Qg2", "open": false, "tags": []}, {"id": "demo005", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "MUMU", "pnl": 0.768, "invested": 1, "pct": 76.8, "dateMs": 1790692200000, "openedMs": 1790690656000, "holdSec": 1544, "ca": "L6A7pNpHXvmBa2EaQAmb2qaLix6mwHaQBPrFbbrZNhFg", "open": false, "tags": []}, {"id": "demo006", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "PEPPA", "pnl": -0.2824, "invested": 0.5, "pct": -56.48, "dateMs": 1790683920000, "openedMs": 1790655218000, "holdSec": 28702, "ca": "sJXHDmfPVtoPQ6F7FXDNEXgzgv1XiPti6vj8RsnqDXyC", "open": false, "tags": ["Narratif"]}, {"id": "demo007", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "GIGACHAD", "pnl": 2.4681, "invested": 1, "pct": 246.81, "dateMs": 1790699100000, "openedMs": 1790698974000, "holdSec": 126, "ca": "ezWtiAgufXjPAcc921toi7ap9UxDuxE2HEKZGqeMHbTv", "open": false, "tags": []}, {"id": "demo008", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "GOATSE", "pnl": 4.7968, "invested": 2, "pct": 239.84, "dateMs": 1790874540000, "openedMs": 1790869758000, "holdSec": 4782, "ca": "1rtACAXgo8c4MkaacXsr7yc4GDJ3r7ZVc2qz5VMgZfZD", "open": false, "tags": ["Sniper"]}, {"id": "demo009", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "LLAMA", "pnl": 3.1921, "invested": 1.5, "pct": 212.81, "dateMs": 1790858640000, "openedMs": 1790855914000, "holdSec": 2726, "ca": "8SVM5jGU5EjLs8zrAnijQAHy9WFp7SyYBjvFBnUZSNTD", "open": false, "tags": ["Sniper"]}, {"id": "demo010", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "BONKY", "pnl": 1.5074, "invested": 1, "pct": 150.74, "dateMs": 1790933040000, "openedMs": 1790908278000, "holdSec": 24762, "ca": "sFy76HJ3zrCJq9uUwkuHSAbZdYmM6J4tmCUz5J2h6tH6", "open": false, "tags": ["Runner"]}, {"id": "demo011", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "SOLPUP", "pnl": 1.1319, "invested": 0.5, "pct": 226.38, "dateMs": 1790951700000, "openedMs": 1790951233000, "holdSec": 467, "ca": "8BH4CDLhLaqEKVZkCJPt2H312oZcDZXGV7juiUjYbvyS", "open": false, "tags": ["Runner"]}, {"id": "demo012", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "PEPPA", "pnl": -0.5182, "invested": 0.75, "pct": -69.09, "dateMs": 1790950320000, "openedMs": 1790950137000, "holdSec": 183, "ca": "5hpyHUB46jvRxZjKfGmK3WCBJV1HQNcMG3yLEPC1NR6X", "open": false, "tags": ["Sniper"]}, {"id": "demo013", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "HYPE5", "pnl": -0.6181, "invested": 2, "pct": -30.9, "dateMs": 1790974800000, "openedMs": 1790974667000, "holdSec": 133, "ca": "3S2LLhF6eawqAjznsyfRqMoYAKogiA3uvnzZhUomtZ9a", "open": false, "tags": ["Rug"]}, {"id": "demo014", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "NOVA", "pnl": 0.1263, "invested": 0.5, "pct": 25.26, "dateMs": 1791023040000, "openedMs": 1791014313000, "holdSec": 8727, "ca": "kGYH1Wt5pZzb6ja5ppXHt5wHGoqEFpiWYwR5XkKr3ghi", "open": false, "tags": []}, {"id": "demo015", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MUMU", "pnl": -0.187, "invested": 0.75, "pct": -24.93, "dateMs": 1791302580000, "openedMs": 1791290658000, "holdSec": 11922, "ca": "KnaKWWWr8zcDL6X2KW5uZVJREE5e6ApaHQ9fuhZJy8nQ", "open": false, "tags": []}, {"id": "demo016", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "GIGACHAD", "pnl": -0.6492, "invested": 1.5, "pct": -43.28, "dateMs": 1791277800000, "openedMs": 1791273173000, "holdSec": 4627, "ca": "TPRM8vN1MqNvS8Dn1zpKHQ5SRxe5QUqJw4J74vjKhAGJ", "open": false, "tags": ["Narratif"]}, {"id": "demo017", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MOONCAT", "pnl": 4.0886, "invested": 2, "pct": 204.43, "dateMs": 1791302160000, "openedMs": 1791283428000, "holdSec": 18732, "ca": "oTVgq9ixKY4c9BXTNKLHppiHSiGLXcjS8BiB5EZztYcF", "open": false, "tags": ["Narratif"]}, {"id": "demo018", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "NOVA", "pnl": -0.414, "invested": 1, "pct": -41.4, "dateMs": 1791286500000, "openedMs": 1791286263000, "holdSec": 237, "ca": "6MGQHtdDy2pxTRTpaERJNq4YJdQ9kZahsxwE6JzGRSiV", "open": false, "tags": ["Narratif"]}, {"id": "demo019", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "COZY", "pnl": 0.9442, "invested": 0.5, "pct": 188.84, "dateMs": 1791391020000, "openedMs": 1791390419000, "holdSec": 601, "ca": "VGs7FAAak7uomiwqzW6cr31s9Fd3inL9hHahUmq875La", "open": false, "tags": ["Runner"]}, {"id": "demo020", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "SOLPUP", "pnl": 0.2222, "invested": 0.25, "pct": 88.88, "dateMs": 1791556860000, "openedMs": 1791556572000, "holdSec": 288, "ca": "2TniL42DYykiT6HFjUQFY3mNnTQkSD1tKpwZ5EYDLruD", "open": false, "tags": []}, {"id": "demo021", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "GOATSE", "pnl": 3.0197, "invested": 1.5, "pct": 201.31, "dateMs": 1791570660000, "openedMs": 1791568231000, "holdSec": 2429, "ca": "AS4E2fAT4n4CSVznyMo86BNDCiapW3LjoRvQNVB716J6", "open": false, "tags": ["Sniper"]}, {"id": "demo022", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MOONCAT", "pnl": -0.2443, "invested": 1, "pct": -24.43, "dateMs": 1791580380000, "openedMs": 1791576859000, "holdSec": 3521, "ca": "nXDQbVDMQpzX2hTGthrS3R3W5t4HDp5zfNQJNg3HpnmM", "open": false, "tags": ["Sniper"]}, {"id": "demo023", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MUMU", "pnl": 0.2169, "invested": 0.3, "pct": 72.3, "dateMs": 1791650940000, "openedMs": 1791648284000, "holdSec": 2656, "ca": "C1tpLumrAfGMxMWQssf6ZDSqBGT5i3XcbMBUy75Hg6E7", "open": false, "tags": ["Narratif"]}, {"id": "demo024", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "NOVA", "pnl": -1.0283, "invested": 1.5, "pct": -68.55, "dateMs": 1791630840000, "openedMs": 1791595233000, "holdSec": 35607, "ca": "wrjq8rvKKJdJQHpHDVGCGGAKyeDM5SHGZaFit7iW371X", "open": false, "tags": []}, {"id": "demo025", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "NEURA", "pnl": -0.3015, "invested": 1.5, "pct": -20.1, "dateMs": 1791638040000, "openedMs": 1791620217000, "holdSec": 17823, "ca": "5QZxCVfHrrj17hfngPE3QNA3EH3foiEu1uMTkQCgL5E3", "open": false, "tags": ["Narratif"]}, {"id": "demo026", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "TURBO7", "pnl": 2.3, "invested": 2, "pct": 115.0, "dateMs": 1791660900000, "openedMs": 1791649527000, "holdSec": 11373, "ca": "mJTKjLT4LpdyPTT2xrtQiDSoSE1UzBU8u6SdyQWrB914", "open": false, "tags": ["Runner"]}, {"id": "demo027", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "DOGWIF2", "pnl": 0.7265, "invested": 0.3, "pct": 242.17, "dateMs": 1791803340000, "openedMs": 1791787336000, "holdSec": 16004, "ca": "7RYqtstDL9v3XM4fhR6zngmuzBhswFgSgwDvXCdE3SaB", "open": false, "tags": ["Narratif"]}, {"id": "demo028", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "BONKY", "pnl": 0.7553, "invested": 1, "pct": 75.53, "dateMs": 1791846720000, "openedMs": 1791838822000, "holdSec": 7898, "ca": "RfWcwhrLiTLeGURjQVZVC21gYWGVqgruWvCtXS759PUQ", "open": false, "tags": []}, {"id": "demo029", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "TURBO7", "pnl": -0.4023, "invested": 2, "pct": -20.11, "dateMs": 1791889500000, "openedMs": 1791889139000, "holdSec": 361, "ca": "is92w5gomu8D9yYKtsBksoF5vPgqHBMzgJzuWAHZXEeH", "open": false, "tags": ["Rug"]}, {"id": "demo030", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "BONKY", "pnl": 2.1241, "invested": 2, "pct": 106.2, "dateMs": 1791904200000, "openedMs": 1791903876000, "holdSec": 324, "ca": "ra4hwQxVcaemyz7HbhwSptQHRQdAQNq6VFCgp4KuaHLh", "open": false, "tags": ["Runner"]}, {"id": "demo031", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MOONCAT", "pnl": -0.5685, "invested": 1, "pct": -56.85, "dateMs": 1791893340000, "openedMs": 1791860567000, "holdSec": 32773, "ca": "9YFgi3241dPL7aPbFTeLe9EQgvXB91tGnAV75hAxjsJS", "open": false, "tags": ["Sniper"]}, {"id": "demo032", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MOONCAT", "pnl": -0.9785, "invested": 2, "pct": -48.93, "dateMs": 1792002480000, "openedMs": 1792001910000, "holdSec": 570, "ca": "4b2SCGB4r71gcjDATDafiZiiTugCZL5Lh4yosXnb1RwU", "open": false, "tags": ["Narratif"]}, {"id": "demo033", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "ZAPPY", "pnl": -0.158, "invested": 0.5, "pct": -31.6, "dateMs": 1792177320000, "openedMs": 1792154665000, "holdSec": 22655, "ca": "hckUksaHKizE6yZ1BHzGvpDBpMDyRNfGRwhmjvbXXvam", "open": false, "tags": []}, {"id": "demo034", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "PEPPA", "pnl": 0.452, "invested": 0.5, "pct": 90.4, "dateMs": 1792262220000, "openedMs": 1792262101000, "holdSec": 119, "ca": "87gBPAm2239mih3m5p35weqQDuubzj5yxqnR7GEE833w", "open": false, "tags": []}, {"id": "demo035", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "PEPPA", "pnl": 0.3563, "invested": 0.75, "pct": 47.51, "dateMs": 1792264380000, "openedMs": 1792261166000, "holdSec": 3214, "ca": "PHK4nqQMrfZXwKgp2sT2Uar7PXn4bdEnxu6duKBU1aDK", "open": false, "tags": []}, {"id": "demo036", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "SOLPUP", "pnl": -0.2441, "invested": 0.5, "pct": -48.82, "dateMs": 1792449120000, "openedMs": 1792443785000, "holdSec": 5335, "ca": "YB8hr6Ysmcs7hMP7SSzyp6Uyi2QELHUzbZBRyhFW9bfq", "open": false, "tags": ["Rug"]}, {"id": "demo037", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "HYPE5", "pnl": 0.2376, "invested": 0.25, "pct": 95.04, "dateMs": 1792448880000, "openedMs": 1792446892000, "holdSec": 1988, "ca": "F9NWiymGZDJLqnuvgAoAGoMfaPBGMDHo7Bj7DRAAsLoL", "open": false, "tags": ["Narratif"]}, {"id": "demo038", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "COZY", "pnl": 0.6957, "invested": 0.3, "pct": 231.9, "dateMs": 1792488300000, "openedMs": 1792450101000, "holdSec": 38199, "ca": "2AHfpS1pGwUmdepiTwFjoiyyrimewFkCi8WUMHhm7zTG", "open": false, "tags": ["Narratif"]}, {"id": "demo039", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "PEPPA", "pnl": 0.5939, "invested": 0.5, "pct": 118.78, "dateMs": 1792608840000, "openedMs": 1792591443000, "holdSec": 17397, "ca": "RvY73HbEBnsDaP7wdWbEnXZ2hsvQaNTpWEkCSZq8ogPh", "open": false, "tags": []}, {"id": "demo040", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "KIRBO", "pnl": 5.5115, "invested": 0.75, "pct": 734.87, "dateMs": 1792597200000, "openedMs": 1792596800000, "holdSec": 400, "ca": "pSaFtSWEB9r5tthDXicoFuAPjhvusuTWKqci9rvXPswF", "open": false, "tags": ["Sniper"]}, {"id": "demo041", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "KIRBO", "pnl": -0.6911, "invested": 1, "pct": -69.11, "dateMs": 1792609860000, "openedMs": 1792609238000, "holdSec": 622, "ca": "MXYUgh6jzQALwR46udzMs9avPhe1j1E5iKHf7eAwFCrV", "open": false, "tags": ["Sniper"]}, {"id": "demo042", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "NEURA", "pnl": 0.568, "invested": 0.5, "pct": 113.6, "dateMs": 1792609020000, "openedMs": 1792608888000, "holdSec": 132, "ca": "a6pvVjy8c8HTFu9XYc4XWzAmYGYBbfxp1BvMWmdYjKvW", "open": false, "tags": ["Sniper"]}, {"id": "demo043", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "MUMU", "pnl": 0.3099, "invested": 0.3, "pct": 103.3, "dateMs": 1792661940000, "openedMs": 1792650382000, "holdSec": 11558, "ca": "qzA3EnTh9N7xjQNXracrEKUNUHc4uKKPuYSNZJxZPEiY", "open": false, "tags": []}, {"id": "demo044", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "MOONCAT", "pnl": 1.8973, "invested": 1, "pct": 189.73, "dateMs": 1792695900000, "openedMs": 1792663891000, "holdSec": 32009, "ca": "SL713DuXfrj4sZbgRgAhkmmfyk6E3jhWhqC7jCx3Tr7i", "open": false, "tags": []}, {"id": "demo045", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "PONKE", "pnl": -0.2521, "invested": 1, "pct": -25.21, "dateMs": 1792676100000, "openedMs": 1792673026000, "holdSec": 3074, "ca": "2Udie4Yda3u8rtTdmSV51kRfejAXrTc76iXEzAh1U11k", "open": false, "tags": []}, {"id": "demo046", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "GIGACHAD", "pnl": 0.1342, "invested": 0.3, "pct": 44.73, "dateMs": 1792676760000, "openedMs": 1792676472000, "holdSec": 288, "ca": "oq6KhcnYWjyH4n3141yikug6RLLofBxvYf4MQdoVXkBA", "open": false, "tags": []}, {"id": "demo047", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MOONCAT", "pnl": -0.1987, "invested": 0.5, "pct": -39.74, "dateMs": 1792770540000, "openedMs": 1792767712000, "holdSec": 2828, "ca": "gintufNxfo1vAfvLeUyGRRkRfrzFtVKm1MHJUBeuqys3", "open": false, "tags": ["Sniper"]}, {"id": "demo048", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "DOGWIF2", "pnl": -0.3155, "invested": 0.5, "pct": -63.1, "dateMs": 1792778940000, "openedMs": 1792773853000, "holdSec": 5087, "ca": "bcYtRDsqoFLf4kSWnEHeq1sRWb6btPr5FSeazHyvaMXZ", "open": false, "tags": ["Rug"]}, {"id": "demo049", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "GIGACHAD", "pnl": 0.3106, "invested": 0.5, "pct": 62.12, "dateMs": 1792786680000, "openedMs": 1792781347000, "holdSec": 5333, "ca": "G3YQx7QhWs6AMf2PJaf273ExxdYedEHrJU7Vreuf9Hv3", "open": false, "tags": ["Sniper"]}, {"id": "demo050", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "MUMU", "pnl": -0.1883, "invested": 0.5, "pct": -37.66, "dateMs": 1792746180000, "openedMs": 1792716556000, "holdSec": 29624, "ca": "wz5xfhS8n6HMdFi6jZSCVwBQGoFC3HP4zcz2v4HsZnpi", "open": false, "tags": ["Narratif"]}, {"id": "demo051", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "BONKY", "pnl": -0.3071, "invested": 0.75, "pct": -40.95, "dateMs": 1793041560000, "openedMs": 1793038307000, "holdSec": 3253, "ca": "QXRBVGtAkz1WnDt3BvF5gxQyp9rV7Rv2h5VNMuFX8hQA", "open": false, "tags": ["Sniper"]}, {"id": "demo052", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "GIGACHAD", "pnl": -0.2339, "invested": 0.5, "pct": -46.78, "dateMs": 1793100480000, "openedMs": 1793097698000, "holdSec": 2782, "ca": "2JdvKNtBHY7MWzX8AZ4hzsjEcXvK8HqDQUHGG7RKTzB4", "open": false, "tags": ["Sniper"]}, {"id": "demo053", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "NEURA", "pnl": 21.3159, "invested": 2, "pct": 1065.8, "dateMs": 1793294280000, "openedMs": 1793294050000, "holdSec": 230, "ca": "JdC9vCarFnCDf6v6yfoYqJCE9gjnhtDeLD15moaTvo4a", "open": false, "tags": ["Sniper"]}, {"id": "demo054", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "SOLPUP", "pnl": 1.716, "invested": 1, "pct": 171.6, "dateMs": 1793268000000, "openedMs": 1793253866000, "holdSec": 14134, "ca": "CdvQ3BmQdfw1PaVa58PnGuvxMrnxRdqz4Kx7oYVZ2atb", "open": false, "tags": []}, {"id": "demo055", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "HYPE5", "pnl": 0.4571, "invested": 0.5, "pct": 91.42, "dateMs": 1793437260000, "openedMs": 1793437122000, "holdSec": 138, "ca": "WaGmV7Px7nC3J8WYeZqJ888Sy9beFxFAjdWpSBu2hRmT", "open": false, "tags": ["Runner"]}, {"id": "demo056", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "TURBO7", "pnl": 0.614, "invested": 0.25, "pct": 245.6, "dateMs": 1793543100000, "openedMs": 1793509154000, "holdSec": 33946, "ca": "wc4MaAkPGxUjh1Q7aC5MUDZj2F9TSrWh3tyy33xigJkg", "open": false, "tags": ["Sniper"]}, {"id": "demo057", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "MOONCAT", "pnl": -0.3972, "invested": 2, "pct": -19.86, "dateMs": 1793528160000, "openedMs": 1793523298000, "holdSec": 4862, "ca": "K8LPiB84fZzJ6WebAV8Z9yKTdKJGp6pbKvWgmdFiRDcn", "open": false, "tags": ["Sniper"]}, {"id": "demo058", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "NEURA", "pnl": -0.5069, "invested": 1.5, "pct": -33.79, "dateMs": 1793550600000, "openedMs": 1793549747000, "holdSec": 853, "ca": "ZbReS1PBxGMcMYJKyEK4r2Bc5fxPVj4aRvVPpq7aFkpA", "open": false, "tags": ["Narratif"]}, {"id": "demo059", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "LLAMA", "pnl": -0.2502, "invested": 0.5, "pct": -50.04, "dateMs": 1793657820000, "openedMs": 1793656442000, "holdSec": 1378, "ca": "x71Trce8YSdATwsJxgf8RwVmWKoPKPSacfRiM1spwYRV", "open": false, "tags": ["Sniper"]}, {"id": "demo060", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "SOLPUP", "pnl": 1.0586, "invested": 0.5, "pct": 211.72, "dateMs": 1793633820000, "openedMs": 1793632500000, "holdSec": 1320, "ca": "MEUz124HdzYLbrLbgUauaokURWP3fkPV1k5aF7TQZSic", "open": false, "tags": ["Runner"]}, {"id": "demo061", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "WOJAK9", "pnl": -0.9713, "invested": 1.5, "pct": -64.75, "dateMs": 1793902860000, "openedMs": 1793901505000, "holdSec": 1355, "ca": "5uLZC8izKmNuZyThBaKuZEZzDTC4hdf7Pdhho3mT1s1L", "open": false, "tags": ["Rug"]}, {"id": "demo062", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "axiom", "currency": "SOL", "token": "NOVA", "pnl": -0.0967, "invested": 0.25, "pct": -38.68, "dateMs": 1793875020000, "openedMs": 1793874965000, "holdSec": 55, "ca": "dJxizbZAdDTf8ABaqZ7275BaYuWgUtt4i1kreMAnGPJB", "open": false, "tags": []}, {"id": "demo063", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "GOATSE", "pnl": 0.3756, "invested": 0.3, "pct": 125.2, "dateMs": 1793956440000, "openedMs": 1793951067000, "holdSec": 5373, "ca": "GGF3BewCM1zxuWLTfHyY5GkRkneFTLSynY2sxG6CBPRC", "open": false, "tags": []}, {"id": "demo064", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "terminal", "currency": "SOL", "token": "NOVA", "pnl": 0.4315, "invested": 1, "pct": 43.15, "dateMs": 1794064860000, "openedMs": 1794063724000, "holdSec": 1136, "ca": "GRDWKPGU3Jj2NtAGn96DJbvs9cVWvstGBQPEoSRheELX", "open": false, "tags": ["Runner"]}, {"id": "demo065", "file": null, "type": "trade", "flags": [], "edited": false, "src": "wallet", "terminal": "gmgn", "currency": "SOL", "token": "BASED", "pnl": 0.6295, "invested": 0.5, "pct": 125.9, "dateMs": 1794082560000, "openedMs": 1794078946000, "holdSec": 3614, "ca": "E9xq8kZ6bwJprqR2jndAL1Rn6mCrwFMDjz75cQtZqLD5", "open": false, "tags": ["Sniper"]}];
+const IS_DEMO = !!DEMO;
+let cards = DEMO ? DEMO.map(c=>Object.assign({},c)) : [];
+const S = {view:'dash', day:null, range:'day', jsort:{k:'date',d:1}, calMonth:null, sort:'pnl_desc', q:'', res:'all', month:'all', plat:'all', tag:'all', all:false, sel:null};
+let notice = '';
+let W = {address:'',key:'',pages:10,last:0,holdings:[],stats:null,hidden:[]};
+try{ W = Object.assign(W, JSON.parse(localStorage.getItem('pnl_wallet')||'{}')); }catch(e){}
+const saveW = () => { try{ localStorage.setItem('pnl_wallet',JSON.stringify(W)); }catch(e){} };
+let SOFT=false;
+let SET = {target:null, maxLoss:null};
+try{ SET = Object.assign(SET, JSON.parse(localStorage.getItem('pnl_set')||'{}')); }catch(e){}
+const saveSet = () => { try{ localStorage.setItem('pnl_set',JSON.stringify(SET)); }catch(e){} };
+
+const REVIEW = ['amount_mismatch','usd_unverified','invested_unverified','pct_vs_usd_mismatch'];
+const PLAT = {terminal:'Terminal', axiom:'Axiom', gmgn:'GMGN', import:'Import', manuel:'Manuel', wallet:'Wallet', photon:'Photon', bullx:'BullX', autre:'Autre'};
+const SETUPS = ['Snipe','Runner','Scalp','Swing','FOMO','Rug','Dev dump','Bundle'];
+const $ = id => document.getElementById(id);
+const ok = c => c.type==='trade' && typeof c.pnl==='number';
+const failed = () => cards.filter(c=>c.type==='trade' && typeof c.pnl!=='number');
+const trades = () => cards.filter(ok);
+const review = c => (c.flags||[]).some(f=>REVIEW.includes(f)) && !c.edited;
+const sgn = (n,d=3) => (n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(d);
+const cls = n => n>0?'gain':n<0?'loss':'';
+const esc = v => String(v==null?'':v).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const usd = (n,sign=true) => { const a=Math.abs(n); const t=a>=1e6?(a/1e6).toFixed(2)+'M':a>=1e4?(a/1e3).toFixed(1)+'K':a.toLocaleString('en-US',{maximumFractionDigits:0}); return (sign?(n>0?'+':n<0?'−':''):'')+'$'+t; };
+const pad = n => String(n).padStart(2,'0');
+const isoDay = ms => { const d=new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const dayLabel = ms => ms?new Date(ms).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
+const cap = t => t?t[0].toUpperCase()+t.slice(1):t;
+const longDay = k => cap(new Date(parseDate(k)).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}));
+const pctf = n => Math.abs(n)>=1000 ? (n>0?'+':'−')+(Math.abs(n)/1000).toFixed(1)+'K %' : sgn(n,1)+' %';
+const rid = () => Math.random().toString(36).slice(2,12);
+const platName = c => PLAT[c.terminal] || (c.terminal?cap(c.terminal):'Terminal');
+const monthKey = c => { if(!c.dateMs) return 'none'; const d=new Date(c.dateMs); return d.getFullYear()+'-'+pad(d.getMonth()+1); };
+const monthLabel = k => { if(k==='none') return 'Sans date'; const [y,m]=k.split('-'); return cap(new Date(+y,+m-1,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'})); };
+const kk = c => `${c.token}|${c.pnl}|${c.invested}`;
+const todayKey = () => isoDay(Date.now());
+const shiftDay = (k,n) => isoDay(parseDate(k)+n*86400000);
+const mondayOf = k => { const ms=parseDate(k), d=new Date(ms); return isoDay(ms-((d.getDay()+6)%7)*86400000); };
+const dur = s => { if(s==null) return '—'; if(s<60) return Math.max(Math.round(s),1)+' s'; const m=Math.round(s/60); if(m<60) return m+' min'; const h=Math.floor(m/60); if(h<24) return h+' h'+(m%60?' '+pad(m%60):''); const d=Math.floor(h/24); return d+' j'+(h%24?' '+(h%24)+' h':''); };
+const shortAddr = a => a?a.slice(0,4)+'…'+a.slice(-4):'';
+const tagsOf = c => Array.isArray(c.tags)?c.tags:[];
+
+/* Logo SOL : si un fichier sol.svg (ou sol.png) est dans le dossier static, il est utilisé ; sinon une pastille « SOL » */
+let solSrc=null;
+(function probe(list){ if(!list.length) return; const im=new Image(); im.onload=()=>{ solSrc=im.src; render({noAnim:true}); }; im.onerror=()=>probe(list.slice(1)); im.src=list[0]; })(['sol.svg','sol.png','sol.webp']);
+const sol = big => solSrc?`<img class="solm" src="${solSrc}" alt="SOL">`:(big?'<span class="solchip">SOL</span>':'');
+
+/* prix SOL implicite (investi $ / investi SOL) pris sur les cartes Terminal les plus proches en date */
+function solPrice(c){
+  const ref=cards.filter(x=>x.currency==='SOL'&&x.usdInv&&x.invested);
+  if(!ref.length) return null;
+  const px=ref.map(x=>({p:x.usdInv/x.invested,d:x.dateMs}));
+  if(c&&c.dateMs){ const near=px.filter(x=>x.d).sort((u,v)=>Math.abs(u.d-c.dateMs)-Math.abs(v.d-c.dateMs))[0]; if(near) return near.p; }
+  const m=px.map(x=>x.p).sort((u,v)=>u-v); return m[Math.floor(m.length/2)];
+}
+const isUsd = c => c.currency==='USD';
+function eq(c){ if(!isUsd(c)) return c.pnl; const p=solPrice(c); return p?c.pnl/p:c.pnl; }
+const solMode = () => { const t=trades(); return t.some(c=>!isUsd(c)) && (!!solPrice() || !t.some(isUsd)); };
+const val = c => solMode()?eq(c):c.pnl;
+const invEq = c => { const v=c.invested||0; if(isUsd(c)&&solMode()){ const p=solPrice(c); return p?v/p:v; } return v; };
+const retOf = c => c.invested?c.pnl/c.invested*100:(c.pct!=null?c.pct:-Infinity);
+const fmt = c => isUsd(c)?usd(c.pnl):sgn(c.pnl,3);
+const money = (c,n,d) => n==null?'—':(isUsd(c)?usd(n,false):n.toFixed(d));
+const unit = v => solMode()?sgn(v,2):usd(v);
+const unitC = v => solMode()?(Math.abs(v)>=10?sgn(v,1):sgn(v,2)):usd(v);
+const hue = t => { let h=0; for(const ch of String(t||'?')) h=(h*31+ch.charCodeAt(0))%360; return h; };
+const thumb = c => c.img?`<div class="th" style="background-image:url('${c.img}')"></div>`:`<div class="th av" style="--h:${hue(c.token)}">${esc((c.token||'?').slice(0,3).toUpperCase())}</div>`;
+const tagHtml = c => tagsOf(c).map(t=>`<span class="tagp">${esc(t)}</span>`).join('');
+
+const SORTS = {
+  pnl_desc:['Meilleurs d\'abord',(a,b)=>val(b)-val(a)],
+  pnl_asc:['Pires d\'abord',(a,b)=>val(a)-val(b)],
+  date_desc:['Plus récents',(a,b)=>(b.dateMs||0)-(a.dateMs||0)],
+  date_asc:['Plus anciens',(a,b)=>(a.dateMs||0)-(b.dateMs||0)],
+  ret_desc:['Meilleur retour %',(a,b)=>retOf(b)-retOf(a)],
+  inv_desc:['Plus grosse mise',(a,b)=>invEq(b)-invEq(a)]
+};
+function filtered(skipMonth){
+  const q=S.q.trim().toLowerCase();
+  return trades().filter(c=>
+    (S.plat==='all'||(c.terminal||'terminal')===S.plat) &&
+    (S.tag==='all'||tagsOf(c).includes(S.tag)) &&
+    (S.res==='all'||(S.res==='win'?c.pnl>0:S.res==='loss'?c.pnl<0:review(c))) &&
+    (skipMonth||S.month==='all'||monthKey(c)===S.month) &&
+    (!q||(c.token||'').toLowerCase().includes(q)||(c.note||'').toLowerCase().includes(q)||tagsOf(c).some(t=>t.toLowerCase().includes(q))));
+}
+const activeFilter = () => S.q||S.res!=='all'||S.month!=='all'||S.plat!=='all'||S.tag!=='all';
+const sum = a => a.reduce((x,y)=>x+y,0);
+
+/* regroupement par jour */
+function dayMap(list){
+  const m=new Map();
+  list.forEach(c=>{ if(!c.dateMs) return; const k=isoDay(c.dateMs); let d=m.get(k); if(!d){ d={key:k,ms:parseDate(k),list:[],pnl:0}; m.set(k,d); } d.list.push(c); d.pnl+=val(c); });
+  return [...m.values()].sort((a,b)=>a.key<b.key?-1:1);
+}
+
+/* ---------- animations JS ---------- */
+const REDUCED = matchMedia('(prefers-reduced-motion:reduce)').matches;
+const FM = {s2:v=>sgn(v,2), s3:v=>sgn(v,3), usd:v=>usd(v), pct0:v=>Math.round(v)+' %', int:v=>String(Math.round(v))};
+let prevHero = 0, prevInd = null;
+function countUps(root,anim){
+  root.querySelectorAll('.cu').forEach(el=>{
+    const hero=el.id==='heroN', to=parseFloat(el.dataset.v), f=FM[el.dataset.f];
+    if(isNaN(to)||!f) return;
+    const from=hero?prevHero:0; if(hero) prevHero=to;
+    if(REDUCED||(!anim&&!hero)||from===to) return;
+    const row=el.closest('.row,.mrow'), idx=row?parseInt(row.style.getPropertyValue('--i')||0,10):0;
+    const dur=hero?(SOFT?700:1000):(SOFT?520:800), t0=performance.now()+(row?idx*(SOFT?22:38)+(SOFT?80:320):hero?0:(SOFT?60:250));
+    el.textContent=f(from);
+    const step=now=>{ const k=Math.min(Math.max((now-t0)/dur,0),1), e=1-Math.pow(1-k,4); el.textContent=f(k<1?from+(to-from)*e:to); if(k<1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+function moveInd(anim){
+  const t=document.querySelector('.tab.on'), ind=document.querySelector('.ind'); if(!t||!ind) return;
+  const set=(l,w)=>{ ind.style.transform=`translateX(${l}px)`; ind.style.width=w+'px'; };
+  if(anim&&prevInd){ ind.style.transition='none'; set(prevInd.l,prevInd.w); ind.offsetWidth; ind.style.transition=''; }
+  else { ind.style.transition='none'; }
+  set(t.offsetLeft,t.offsetWidth); if(!anim||!prevInd){ ind.offsetWidth; ind.style.transition=''; }
+  prevInd={l:t.offsetLeft,w:t.offsetWidth};
+}
+const cu = (v,f,txt) => `<span class="cu" data-v="${v}" data-f="${f}">${txt}</span>`;
+
+/* ---------- rendu ---------- */
+function render(o){
+  const soft=!!(o&&o.soft), anim=!(o&&o.noAnim)&&!soft; SOFT=soft;
+  const main=$('main'); main.className=soft?('soft'+(o.dir>0?' fwd':o.dir<0?' back':'')):anim?'anim':'';
+  const all=trades(), bad=failed(), periods=cards.filter(c=>c.type==='period');
+  const banner = notice?`<div class="banner">${notice}</div>`:'';
+  if(!all.length && !bad.length && !periods.length && S.view!=='wallet'){
+    main.innerHTML=`<section class="start"><h1>Dépose tes PNL cards.</h1><p>Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Tout reste sur ton ordinateur.</p>${banner}
+      <div class="drop" id="drop" role="button" tabindex="0"><b>Choisir des images</b><span>ou glisse-les ici</span><div class="prog" id="prog"><i></i></div></div>
+      <div style="display:flex;gap:24px;justify-content:center;margin-top:24px;flex-wrap:wrap"><button class="link" id="emptyTrade" type="button">Ajouter un trade à la main</button><button class="link" id="emptyMenu" type="button">Importer un CSV ou un Google Sheets</button><button class="link" id="emptyWallet" type="button">Connecter mon wallet</button></div></section>`;
+    bindDrop(); $('emptyMenu').onclick=openAdd; $('emptyWallet').onclick=()=>{ S.view='wallet'; render(); }; $('emptyTrade').onclick=()=>openSheet('new'); return;
+  }
+  if(!S.day) S.day = initDay(all);
+  const tabs=[['dash','Dashboard'],['journal','Journal'],['cards','Cartes'],['wallet','Wallet']];
+  const nav=`<div class="navwrap"><div class="tabs" role="tablist"><span class="ind"></span>${tabs.map(([k,l])=>`<button class="tab ${S.view===k?'on':''}" data-view="${k}" role="tab" type="button">${l}</button>`).join('')}</div></div>`;
+  const foot = `<div class="foot"><span>${IS_DEMO?'Démo · données fictives':'Les images restent sur cet ordinateur'} · v5</span><button class="link" id="csvBtn" type="button">Exporter en CSV</button></div><div class="prog" id="prog"><i></i></div>`;
+  let body='';
+  if(S.view==='wallet') body=walletView();
+  else if(!all.length) body=`<div class="ph"><div><div class="eyebrow">Aucun trade lu pour l'instant</div></div></div>${unreadSec(bad)}${monthsBox(periods)}`;
+  else if(S.view==='dash') body=dashView(all,periods);
+  else if(S.view==='journal') body=journalView(all);
+  else body=cardsView(all,bad,periods);
+  main.innerHTML = banner + nav + body + foot + (S.sel?bulkBar():'');
+  bind(); countUps(main,anim||soft); moveInd(anim||soft);
+}
+function initDay(all){ const ds=dayMap(all); return ds.length?ds[ds.length-1].key:todayKey(); }
+
+/* ---------- DASHBOARD ---------- */
+function dashView(all,periods){
+  const days=dayMap(all), mode=solMode(), f=mode?'s2':'usd';
+  const total=sum(all.map(val)), tk=todayKey(), now=Date.now();
+  const pOn = pred => sum(days.filter(d=>pred(d.key)).map(d=>d.pnl));
+  const todayP=pOn(k=>k===tk), p7=pOn(k=>k>=shiftDay(tk,-6)&&k<=tk), mk=tk.slice(0,7), pm=pOn(k=>k.startsWith(mk));
+  const nT=all.filter(c=>c.dateMs&&isoDay(c.dateMs)===tk).length, n7=all.filter(c=>c.dateMs&&isoDay(c.dateMs)>=shiftDay(tk,-6)&&isoDay(c.dateMs)<=tk).length, nM=all.filter(c=>c.dateMs&&isoDay(c.dateMs).startsWith(mk)).length;
+  const wins=all.filter(c=>c.pnl>0).length;
+  const K=(k,v,d,i)=>`<div class="kpi" style="--i:${i}"><div class="k">${k}</div><div class="v n ${cls(v)}">${cu(v,f,unit(v))}${mode?sol(false):''}</div><div class="d">${d}</div></div>`;
+  const conv=mode&&all.some(isUsd);
+  return `
+  <div class="ph"><div>
+    <div class="eyebrow">Capital réalisé · ${all.length} trades${conv?' · cartes en $ converties en SOL (≈)':''}</div>
+    <div class="big n ${cls(total)}">${cu(total,f,unit(total)).replace('class="cu"','class="cu" id="heroN"')}${mode?sol(true):''}</div>
+    <div class="sub2">Taux de gain <b>${Math.round(wins/all.length*100)} %</b> · ${wins} gagnant${wins>1?'s':''} · ${all.length-wins} perdant${all.length-wins>1?'s':''}</div>
+  </div></div>
+  <div class="kpis">${K("Aujourd'hui",todayP,nT+' trade'+(nT>1?'s':''),0)}${K('7 derniers jours',p7,n7+' trades',1)}${K('Ce mois-ci',pm,nM+' trades',2)}${K('Total',total,all.length+' trades',3)}</div>
+  <div class="card" style="margin-top:16px;--i:4"><div class="hd"><h3>Courbe de capital</h3><span class="n ${cls(total)}" style="font-weight:800">${unit(total)}</span></div>${eqChart(days)}</div>
+  <div class="g2">
+    <div class="card" style="--i:5">${calendar(days)}</div>
+    <div class="card" style="--i:6">${goalCard(days,all,todayP)}</div>
+  </div>
+  <div class="card" style="margin-top:16px;--i:7"><div class="hd"><h3>Résultat par jour</h3><span class="dim" style="font-size:13px">${Math.min(days.length,30)} derniers jours tradés</span></div>${barChart(days.slice(-30))}</div>
+  <div class="g2e">
+    <div class="card" style="--i:8"><div class="hd"><h3>Par jour de la semaine</h3></div>${weekdayBars(days)}</div>
+    <div style="display:grid;gap:16px;align-content:start"><div class="card" style="--i:9"><div class="hd"><h3>Par plateforme</h3></div>${platformList(all)}</div>${holdCard(all)}</div>
+  </div>
+  ${tagStats(all)}
+  ${monthsView(all)}
+  ${keyStats(all)}
+  ${monthsBox(periods)}`;
+}
+
+/* courbe de capital */
+let EQ=null;
+function eqChart(days){
+  if(days.length<2) return '<div class="empty">Il faut au moins 2 jours de trades pour tracer la courbe.</div>';
+  let cum=0; const pts=[{k:shiftDay(days[0].key,-1),ms:days[0].ms-86400000,v:0,d:0}];
+  days.forEach(d=>{ cum+=d.pnl; pts.push({k:d.key,ms:d.ms,v:cum,d:d.pnl,n:d.list.length}); });
+  const W=720,H=240,pl=48,pr=12,pt=14,pb=26;
+  const vs=pts.map(p=>p.v), mn=Math.min(0,...vs), mx=Math.max(0,...vs), span=(mx-mn)||1, lo=mn-span*.06, hi=mx+span*.08;
+  const x=ms=>pl+(ms-pts[0].ms)/(pts[pts.length-1].ms-pts[0].ms)*(W-pl-pr);
+  const y=v=>pt+(1-(v-lo)/(hi-lo))*(H-pt-pb);
+  pts.forEach(p=>{p.px=x(p.ms);p.py=y(p.v);});
+  let d=`M${pts[0].px.toFixed(1)},${pts[0].py.toFixed(1)}`;
+  for(let i=1;i<pts.length;i++){ const a=pts[i-1],b=pts[i],mx2=(a.px+b.px)/2; d+=` C${mx2.toFixed(1)},${a.py.toFixed(1)} ${mx2.toFixed(1)},${b.py.toFixed(1)} ${b.px.toFixed(1)},${b.py.toFixed(1)}`; }
+  const last=pts[pts.length-1], area=d+` L${last.px.toFixed(1)},${H-pb} L${pts[0].px.toFixed(1)},${H-pb} Z`;
+  const col=last.v>=0?'#5fe3b0':'#ff7c88', ticks=[0,1,2,3].map(i=>lo+(hi-lo)*i/3);
+  const tf=v=>solMode()?(Math.abs(v)>=100?v.toFixed(0):v.toFixed(1)):usd(v,false);
+  EQ={pts,W};
+  return `<div class="chart"><svg id="eqSvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Courbe de capital">
+    <defs><linearGradient id="eqg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".28"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+    ${ticks.map(v=>`<line class="grid" x1="${pl}" x2="${W-pr}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text class="axis" x="${pl-10}" y="${(y(v)+4).toFixed(1)}" text-anchor="end">${tf(v)}</text>`).join('')}
+    ${mn<0?`<line class="zero" x1="${pl}" x2="${W-pr}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}"/>`:''}
+    <path class="eqarea" d="${area}" fill="url(#eqg)"/>
+    <path class="eqline" pathLength="1" d="${d}" stroke="${col}"/>
+    <text class="axis" x="${pl}" y="${H-6}">${dayLabel(pts[1].ms)}</text><text class="axis" x="${W-pr}" y="${H-6}" text-anchor="end">${dayLabel(last.ms)}</text>
+    <line id="eqLine" y1="${pt}" y2="${H-pb}" stroke="#394152" stroke-width="1" opacity="0"/><circle id="eqDot" r="5.5" fill="${col}" stroke="#07080b" stroke-width="2.5" opacity="0"/>
+  </svg><div class="tip" id="eqTip"></div></div>`;
+}
+/* barres par jour */
+function barChart(days){
+  if(!days.length) return '<div class="empty">Rien à afficher.</div>';
+  const W=720,H=180,pl=8,pr=8,pt=10,pb=22,n=days.length;
+  const vs=days.map(d=>d.pnl), mn=Math.min(0,...vs), mx=Math.max(0,...vs), span=(mx-mn)||1;
+  const y=v=>pt+(1-(v-mn)/span)*(H-pt-pb), y0=y(0), slot=(W-pl-pr)/n, bw=Math.min(slot*.64,34);
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Résultat par jour">
+    <line class="zero" x1="${pl}" x2="${W-pr}" y1="${y0.toFixed(1)}" y2="${y0.toFixed(1)}"/>
+    ${days.map((d,i)=>{ const cx=pl+slot*(i+.5), yy=y(d.pnl), h=Math.max(Math.abs(yy-y0),2), top=d.pnl>=0?y0-h:y0;
+      return `<rect class="brect ${d.pnl<0?'neg':''}" style="--i:${i}" x="${(cx-bw/2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="${d.pnl>=0?'#5fe3b0':'#ff7c88'}" opacity=".9"><title>${esc(longDay(d.key))} · ${unit(d.pnl)} · ${d.list.length} trade${d.list.length>1?'s':''}</title></rect>`; }).join('')}
+    <text class="axis" x="${pl}" y="${H-5}">${dayLabel(days[0].ms)}</text><text class="axis" x="${W-pr}" y="${H-5}" text-anchor="end">${dayLabel(days[n-1].ms)}</text>
+  </svg></div>`;
+}
+/* calendrier */
+function calendar(days){
+  const map=new Map(days.map(d=>[d.key,d])), last=days.length?days[days.length-1].key.slice(0,7):todayKey().slice(0,7);
+  const mk=S.calMonth||last, [y,m]=mk.split('-').map(Number), nd=new Date(y,m,0).getDate(), start=(new Date(y,m-1,1).getDay()+6)%7;
+  const inMonth=days.filter(d=>d.key.startsWith(mk)), mp=sum(inMonth.map(d=>d.pnl)), mxa=Math.max(...inMonth.map(d=>Math.abs(d.pnl)),.0001), tk=todayKey();
+  let cells='', i=0, wk=0, idx=0;
+  for(let c=0;c<start;c++){ cells+='<div class="cd out"></div>'; i++; }
+  for(let dn=1;dn<=nd;dn++){
+    const key=`${mk}-${pad(dn)}`, d=map.get(key), a=d?(.14+.5*Math.abs(d.pnl)/mxa).toFixed(2):0;
+    if(d) wk+=d.pnl;
+    cells+=d?`<button class="cd has ${key===tk?'today':''}" type="button" data-day="${key}" style="--i:${idx++};background:rgba(${d.pnl>=0?'95,227,176':'255,124,136'},${a})" title="${esc(longDay(key))} · ${d.list.length} trade${d.list.length>1?'s':''}"><span class="dn">${dn}</span><span class="dv n">${unitC(d.pnl)}</span></button>`
+            :`<div class="cd ${key===tk?'today':''}"><span class="dn">${dn}</span></div>`;
+    i++;
+    if(i%7===0||dn===nd){
+      if(dn===nd&&i%7!==0){ while(i%7!==0){ cells+='<div class="cd out"></div>'; i++; } }
+      cells+=`<div class="cw n ${wk?cls(wk):'dim'}">${wk?unitC(wk):'·'}</div>`; wk=0;
+    }
+  }
+  return `<div class="hd"><h3>Calendrier</h3><div class="cnav"><button class="ico" data-cal="-1" type="button" aria-label="Mois précédent"><svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="#f4f5f7" stroke-width="2" stroke-linecap="round"><path d="M6 1 1 6l5 5"/></svg></button><b>${esc(monthLabel(mk))}</b><button class="ico" data-cal="1" type="button" aria-label="Mois suivant"><svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="#f4f5f7" stroke-width="2" stroke-linecap="round"><path d="m2 1 5 5-5 5"/></svg></button></div></div>
+    <div class="cal">${['L','M','M','J','V','S','D'].map(t=>`<div class="dh">${t}</div>`).join('')}<div class="dh wh">Sem.</div>${cells}</div>
+    <div class="sub2" style="margin-top:16px">Total du mois <b class="n ${cls(mp)}">${unit(mp)}</b> · ${inMonth.length} jour${inMonth.length>1?'s':''} tradé${inMonth.length>1?'s':''}</div>`;
+}
+/* objectif du jour + séries */
+function goalCard(days,all,todayP){
+  const tk=todayKey(), has=days.length;
+  let cur=0; for(let i=days.length-1;i>=0;i--){ if(days[i].pnl>0) cur++; else break; }
+  let best=0, run=0; days.forEach(d=>{ run=d.pnl>0?run+1:0; best=Math.max(best,run); });
+  const bd=has?days.reduce((a,b)=>b.pnl>a.pnl?b:a):null, wd=has?days.reduce((a,b)=>b.pnl<a.pnl?b:a):null;
+  const R=54, C=2*Math.PI*R, tg=SET.target, prog=tg?Math.max(0,Math.min(todayP/tg,1)):0;
+  const ring=`<div class="ring"><svg viewBox="0 0 132 132"><circle class="t" cx="66" cy="66" r="${R}" fill="none" stroke-width="10"/><circle class="p" cx="66" cy="66" r="${R}" fill="none" stroke="${todayP<0?'#ff7c88':'#5fe3b0'}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-prog)).toFixed(1)}"/></svg>
+    <div class="c">${tg?`<span class="n">${Math.round(prog*100)}%</span><small>de l'objectif</small>`:`<span class="n ${cls(todayP)}">${unitC(todayP)}</span><small>aujourd'hui</small>`}</div></div>`;
+  const hitMax = SET.maxLoss && todayP<=-SET.maxLoss;
+  return `<div class="hd"><h3>Objectif du jour</h3><button class="link" id="setBtn" type="button" style="padding:0">${tg||SET.maxLoss?'Modifier':'Définir'}</button></div>
+    <div class="goal">${ring}<div class="facts">
+      <div class="fact"><span>Aujourd'hui</span><b class="n ${cls(todayP)}">${unit(todayP)}</b></div>
+      <div class="fact"><span>Objectif</span><b class="n">${tg?unit(tg):'—'}</b></div>
+      <div class="fact"><span>Perte max</span><b class="n">${SET.maxLoss?'−'+Math.abs(SET.maxLoss).toFixed(solMode()?2:0):'—'}</b></div>
+      <div class="fact"><span>Série verte</span><b>${cur} jour${cur>1?'s':''} · record ${best}</b></div>
+      <div class="fact"><span>Meilleur jour</span><b class="n gain">${bd?unit(bd.pnl):'—'}</b></div>
+      <div class="fact"><span>Pire jour</span><b class="n ${wd&&wd.pnl<0?'loss':''}">${wd?unit(wd.pnl):'—'}</b></div>
+    </div></div>${hitMax?'<div class="alertchip">Perte max atteinte aujourd\'hui : stop</div>':''}`;
+}
+function holdCard(all){
+  const h=all.filter(c=>c.holdSec!=null&&!c.open); if(h.length<2) return '';
+  const avg=l=>l.length?sum(l.map(c=>c.holdSec))/l.length:null, w=h.filter(c=>c.pnl>0), l=h.filter(c=>c.pnl<0);
+  const row=(k,v)=>`<div class="fact"><span>${k}</span><b class="n">${v==null?'—':dur(v)}</b></div>`;
+  return `<div class="card" style="--i:10"><div class="hd"><h3>Durée de détention</h3><span class="dim" style="font-size:13px">${h.length} trades</span></div><div class="facts">${row('Moyenne',avg(h))}${row('Trades gagnants',avg(w))}${row('Trades perdants',avg(l))}</div></div>`;
+}
+function weekdayBars(days){
+  const names=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'], t=Array(7).fill(0), n=Array(7).fill(0);
+  days.forEach(d=>{ const i=(new Date(d.ms).getDay()+6)%7; t[i]+=d.pnl; n[i]+=d.list.length; });
+  const mx=Math.max(...t.map(Math.abs),.0001);
+  return names.map((nm,i)=>`<div class="hb" style="--i:${i}"><div class="l">${nm}</div><div class="track"><i style="width:${n[i]?Math.max(Math.abs(t[i])/mx*100,3).toFixed(1):0}%;background:${t[i]>=0?'var(--gain)':'var(--loss)'}"></i></div><div class="v n ${n[i]?cls(t[i]):'dim'}">${n[i]?unitC(t[i]):'·'}</div></div>`).join('');
+}
+function platformList(all){
+  const g={}; all.forEach(c=>{ const p=c.terminal||'terminal'; (g[p]=g[p]||[]).push(c); });
+  return Object.entries(g).sort((a,b)=>sum(b[1].map(val))-sum(a[1].map(val))).map(([p,l])=>{ const t=sum(l.map(val)), w=l.filter(c=>c.pnl>0).length;
+    return `<div class="fact"><span><b style="color:var(--text)">${esc(PLAT[p]||cap(p))}</b> · ${l.length} trade${l.length>1?'s':''} · ${Math.round(w/l.length*100)} %</span><b class="n ${cls(t)}">${unit(t)}</b></div>`; }).join('')||'<div class="empty">Rien à afficher.</div>';
+}
+function tagStats(all){
+  const g={}; all.forEach(c=>tagsOf(c).forEach(t=>{ (g[t]=g[t]||[]).push(c); }));
+  const e=Object.entries(g); if(!e.length) return '';
+  return `<section class="sec"><h2>Par setup</h2><div class="box">${e.sort((a,b)=>sum(b[1].map(val))-sum(a[1].map(val))).map(([t,l],i)=>{ const p=sum(l.map(val)), w=l.filter(c=>c.pnl>0).length;
+    return `<div class="line" style="--i:${i}"><div><span class="tagp">${esc(t)}</span></div><div class="m">${l.length} trade${l.length>1?'s':''} · ${Math.round(w/l.length*100)} % gagnants</div><div class="n ${cls(p)}" style="font-weight:700">${unit(p)}</div></div>`; }).join('')}</div></section>`;
+}
+function monthsView(all){
+  const g={}; all.forEach(c=>{ (g[monthKey(c)]=g[monthKey(c)]||[]).push(c); });
+  const keys=Object.keys(g).sort().reverse(); if(!keys.length) return '';
+  const tot=k=>sum(g[k].map(val)), max=Math.max(...keys.map(k=>Math.abs(tot(k))),0.001);
+  return `<section class="sec"><h2>Résultat par mois</h2><div class="box">${keys.map((k,i)=>{ const t=tot(k), w=g[k].filter(c=>c.pnl>0).length;
+    return `<div class="mrow" style="--i:${i}"><div><div class="l">${esc(monthLabel(k))}</div><div class="m">${g[k].length} trade${g[k].length>1?'s':''} · ${Math.round(w/g[k].length*100)} % gagnants</div></div>
+      <div class="track"><i style="width:${Math.max(Math.abs(t)/max*100,3).toFixed(1)}%;background:${t>=0?'var(--gain)':'var(--loss)'}"></i></div>
+      <div class="p n ${cls(t)}">${cu(t,solMode()?'s2':'usd',unit(t))}${solMode()?sol(false):''}</div></div>`; }).join('')}</div></section>`;
+}
+function keyStats(F){
+  if(!F.length) return '';
+  const v=F.map(val), wins=v.filter(x=>x>0), loss=v.filter(x=>x<0), avg=a=>a.length?sum(a)/a.length:null;
+  const pf=loss.length?sum(wins)/Math.abs(sum(loss)):null;
+  const rets=F.map(retOf).filter(isFinite).sort((a,b)=>a-b), med=rets.length?rets[Math.floor(rets.length/2)]:null;
+  const T=(k,x,c='')=>`<div class="tile"><div class="k">${k}</div><div class="v n ${c}">${x}</div></div>`;
+  return `<section class="sec"><h2>Chiffres clés</h2><div class="tiles">
+    ${T('Trades',F.length)}${T('Taux de gain',Math.round(wins.length/F.length*100)+' %')}${T('PnL moyen',unit(avg(v)),cls(avg(v)))}${T('Retour médian',med==null?'—':pctf(med))}
+    ${T('Gain moyen',wins.length?unit(avg(wins)):'—','gain')}${T('Perte moyenne',loss.length?unit(avg(loss)):'—','loss')}${T('Facteur de profit',pf==null?'—':pf.toFixed(2))}${T('Plus grosse mise',unit(Math.max(...F.map(invEq))).replace('+',''))}
+  </div></section>`;
+}
+function monthsBox(periods){
+  if(!periods.length) return '';
+  return `<section class="sec"><h2>Cartes mensuelles</h2><div class="box">${periods.map(m=>`<div class="line"><div><div style="font-weight:700">${esc(m.label||'Mois')}</div><div class="m">${m.profitDays?esc(m.profitDays)+' jours':''}${m.pct!=null?(m.profitDays?' · ':'')+sgn(m.pct,2)+' %':''}</div></div><div class="n ${cls(m.pnl)}" style="font-weight:700;font-size:17px">${m.pnl==null?'—':usd(m.pnl)}</div></div>`).join('')}</div></section>`;
+}
+
+/* ---------- JOURNAL ---------- */
+function journalRows(all){
+  const d=S.day; let l;
+  if(S.range==='day') l=all.filter(c=>c.dateMs&&isoDay(c.dateMs)===d);
+  else if(S.range==='week'){ const a=mondayOf(d), b=shiftDay(a,6); l=all.filter(c=>c.dateMs&&isoDay(c.dateMs)>=a&&isoDay(c.dateMs)<=b); }
+  else if(S.range==='month') l=all.filter(c=>c.dateMs&&isoDay(c.dateMs).startsWith(d.slice(0,7)));
+  else l=[...all];
+  const order=new Map(cards.map((c,i)=>[c,i])), {k,d:dir}=S.jsort;
+  const key={date:c=>c.dateMs||0,token:c=>(c.token||'').toLowerCase(),plat:c=>platName(c),inv:invEq,pnl:val,ret:retOf,hold:c=>c.holdSec??-1}[k]||(c=>0);
+  return l.sort((a,b)=>{ const x=key(a),y=key(b); const r=(typeof x==='string')?x.localeCompare(y):x-y; return (r*dir)||(order.get(a)-order.get(b)); });
+}
+function rangeTitle(){
+  const d=S.day;
+  if(S.range==='day') return longDay(d);
+  if(S.range==='week'){ const a=mondayOf(d), b=shiftDay(a,6); return `Semaine du ${dayLabel(parseDate(a))} au ${dayLabel(parseDate(b))}`; }
+  if(S.range==='month') return monthLabel(d.slice(0,7));
+  return 'Tous les trades';
+}
+function journalView(all){
+  const rows=journalRows(all), mode=solMode(), f=mode?'s2':'usd';
+  const total=sum(rows.map(val)), wins=rows.filter(c=>c.pnl>0).length;
+  const bestC=rows.length?rows.reduce((a,b)=>val(b)>val(a)?b:a):null;
+  const showDate=S.range!=='day', arrow=k=>S.jsort.k===k?`<span class="ar">${S.jsort.d>0?'↑':'↓'}</span>`:'';
+  const th=(k,l,c='')=>`<th class="${c} ${S.jsort.k===k?'on':''}" data-sort="${k}">${l}${arrow(k)}</th>`;
+  const rng=[['day','Jour'],['week','Semaine'],['month','Mois'],['all','Tout']];
+  const inv=sum(rows.map(invEq)), hasHold=rows.some(c=>c.holdSec!=null);
+  const trs=rows.map((c,i)=>{ const r=retOf(c); return `<tr class="r" data-id="${c.id}" style="--i:${Math.min(i,14)}">
+      ${showDate?`<td class="dim">${esc(dayLabel(c.dateMs)||'—')}</td>`:''}
+      <td><div class="tk">${thumb(c)}<span>${esc(c.token||'?')}</span>${review(c)?'<span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--warn)"></span>':''}${c.open?'<span class="opn">Ouvert</span>':''}</div></td>
+      <td class="dim hide-m">${esc(platName(c))}</td>
+      ${hasHold?`<td class="num n dim hide-m">${c.holdSec!=null?dur(c.holdSec):'—'}</td>`:''}
+      <td class="num n">${c.invested==null?'<span class="dim">—</span>':esc(money(c,c.invested,c.invested>=1?2:3))}</td>
+      <td class="num n ${cls(c.pnl)}" style="font-weight:800"><span class="pv">${fmt(c)}${isUsd(c)?'':sol(false)}</span></td>
+      <td class="num n hide-m ${isFinite(r)?cls(r):'dim'}">${isFinite(r)?pctf(r):'—'}</td>
+      <td class="hide-m">${tagHtml(c)||'<span class="dim">—</span>'}</td></tr>`; }).join('');
+  const table = rows.length?`<div class="card" style="padding:0;overflow:hidden;--i:3"><div class="tw"><table class="tbl"><thead><tr>${showDate?th('date','Date'):''}${th('token','Ticker')}${th('plat','Plateforme','hide-m')}${hasHold?th('hold','Durée','num hide-m'):''}${th('inv','Investi','num')}${th('pnl','PnL','num')}${th('ret','Retour','num hide-m')}<th class="hide-m" style="cursor:default">Setup</th></tr></thead>
+      <tbody>${trs}</tbody>
+      <tfoot><tr>${showDate?'<td></td>':''}<td>${rows.length} trade${rows.length>1?'s':''}</td><td class="hide-m"></td>${hasHold?'<td class="hide-m"></td>':''}<td class="num n">${unit(inv).replace('+','')}</td><td class="num n ${cls(total)}"><span class="pv">${unit(total)}${mode?sol(false):''}</span></td><td class="num n dim hide-m">${Math.round(wins/rows.length*100)} %</td><td class="hide-m"></td></tr></tfoot></table></div></div>`
+    :`<div class="card" style="--i:3"><div class="empty">Aucun trade ${S.range==='day'?'ce jour-là':'sur cette période'}.<br><button class="link" id="emptyAdd" type="button" style="margin-top:8px">Ajouter un trade</button></div></div>`;
+  const dsel = S.range!=='all';
+  return `
+  <div class="ph"><div class="daynav">
+      ${dsel?`<button class="ico" data-shift="-1" type="button" aria-label="Précédent"><svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="#f4f5f7" stroke-width="2" stroke-linecap="round"><path d="M6 1 1 6l5 5"/></svg></button>`:''}
+      <h1>${esc(rangeTitle())}</h1>
+      ${dsel?`<button class="ico" data-shift="1" type="button" aria-label="Suivant"><svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="#f4f5f7" stroke-width="2" stroke-linecap="round"><path d="m2 1 5 5-5 5"/></svg></button>`:''}
+    </div>
+    <div class="chips" style="position:relative">
+      <div class="seg">${rng.map(([k,l])=>`<button data-range="${k}" class="${S.range===k?'on':''}" type="button">${l}</button>`).join('')}</div>
+      ${dsel?`<button class="chip" id="pickDay" type="button">Choisir une date</button><input class="dateinp" id="dateInp" type="date" value="${S.day}">`:''}
+      ${S.day!==todayKey()&&dsel?'<button class="chip" id="todayBtn" type="button">Aujourd\'hui</button>':''}
+    </div></div>
+  <div class="kpis">
+    <div class="kpi" style="--i:0"><div class="k">PnL</div><div class="v n ${cls(total)}">${rows.length?cu(total,f,unit(total)):'—'}${mode&&rows.length?sol(false):''}</div><div class="d">${rows.length} trade${rows.length>1?'s':''}</div></div>
+    <div class="kpi" style="--i:1"><div class="k">Taux de gain</div><div class="v n">${rows.length?cu(wins/rows.length*100,'pct0',Math.round(wins/rows.length*100)+' %'):'—'}</div><div class="d">${wins} gagnant${wins>1?'s':''} · ${rows.length-wins} perdant${rows.length-wins>1?'s':''}</div></div>
+    <div class="kpi" style="--i:2"><div class="k">Meilleur trade</div><div class="v n gain">${bestC?esc(bestC.token||'?')+' '+(mode?sgn(val(bestC),2):usd(bestC.pnl)):'—'}</div><div class="d">${bestC?esc(platName(bestC)):'&nbsp;'}</div></div>
+    <div class="kpi" style="--i:3"><div class="k">Mise totale</div><div class="v n">${rows.length?unit(inv).replace('+',''):'—'}</div><div class="d">${rows.length?'moy. '+unit(inv/rows.length).replace('+',''):'&nbsp;'}</div></div>
+  </div>
+  <div class="card" style="margin:16px 0;--i:2"><div class="hd" style="margin-bottom:12px"><h3>Ajout rapide</h3><span class="dim" style="font-size:13px">${esc(longDay(S.day))}</span></div>
+    <div class="qa"><input id="qa_t" placeholder="Ticker" autocomplete="off"><input id="qa_i" placeholder="Investi" inputmode="decimal" autocomplete="off"><input id="qa_p" placeholder="PnL (ex. +0.8)" inputmode="decimal" autocomplete="off"><select id="qa_c"><option>SOL</option><option>USD</option></select><button class="pill" id="qaBtn" type="button">Ajouter</button></div></div>
+  ${table}`;
+}
+function quickAdd(){
+  const t=$('qa_t').value.trim(), p=num($('qa_p').value);
+  if(!t||p==null){ toast('Ticker et PnL requis'); return; }
+  cards.push({id:rid(),file:null,type:'trade',flags:[],edited:true,token:t,pnl:p,invested:num($('qa_i').value),currency:$('qa_c').value==='USD'?'USD':'SOL',terminal:'manuel',dateMs:parseDate(S.day),tags:[]});
+  saveSoon(); render({noAnim:true}); toast('Trade ajouté'); setTimeout(()=>{ const n=$('qa_t'); if(n) n.focus(); },0);
+}
+function shiftRange(n){
+  if(S.range==='day') S.day=shiftDay(S.day,n);
+  else if(S.range==='week') S.day=shiftDay(S.day,7*n);
+  else if(S.range==='month'){ const [y,m]=S.day.slice(0,7).split('-').map(Number); const d=new Date(y,m-1+n,1); S.day=isoDay(d.getTime()); }
+}
+
+/* ---------- CARTES (classement) ---------- */
+function unreadSec(bad){
+  return bad.length?`<section class="sec unread"><h2>${bad.length} carte${bad.length>1?'s':''} non lue${bad.length>1?'s':''}</h2><div class="box">
+    ${bad.map(c=>`<div class="row" data-id="${c.id}" tabindex="0">${thumb(c)}<div class="mid"><div class="t">${esc(c.file||'Carte')}</div></div><div class="p">Saisir</div></div>`).join('')}</div></section>`:'';
+}
+function cardsView(all,bad,periods){
+  const F=filtered(false), mode=solMode(), conv=mode&&F.some(isUsd), f=mode?'s2':'usd';
+  const total=sum(F.map(val)), wins=F.filter(c=>c.pnl>0).length;
+  const sorted=[...F].sort((SORTS[S.sort]||SORTS.pnl_desc)[1]);
+  const byPnl=[...F].sort(SORTS.pnl_desc[1]), best=byPnl[0], worst=byPnl[byPnl.length-1];
+  const short=c=>mode?sgn(val(c),2):usd(c.pnl);
+  return `<div class="ph"><div>
+    <div class="eyebrow">${F.length} carte${F.length>1?'s':''}${S.month!=='all'?' · '+esc(monthLabel(S.month)):''}${activeFilter()?' · filtré':''}${conv?' · $ convertis en SOL (≈)':''}</div>
+    <div class="big n ${cls(total)}">${cu(F.length?total:0,f,F.length?unit(total):'—').replace('class="cu"','class="cu" id="heroN"')}${mode&&F.length?sol(true):''}</div></div></div>
+  ${F.length?`<div class="stats" style="--i:0">
+      <div class="stat"><div class="k">Taux de gain</div><div class="v n">${cu(wins/F.length*100,'pct0',Math.round(wins/F.length*100)+' %')}</div></div>
+      <div class="stat"><div class="k">Meilleur</div><div class="v n gain">${esc(best.token||'?')} ${short(best)}</div></div>
+      <div class="stat"><div class="k">Pire</div><div class="v n ${worst.pnl<0?'loss':''}">${esc(worst.token||'?')} ${short(worst)}</div></div></div>`:''}
+  ${F.length>=10&&wins/F.length>=.9&&S.res==='all'?`<p class="note">${F.length-wins===0?'Aucune perte':(F.length-wins)+' perte'+(F.length-wins>1?'s':'')} sur ${F.length} cartes : les cartes exportées montrent surtout les gains, ces chiffres sont donc flatteurs.</p>`:''}
+  ${tools(all)}${rankList(sorted)}${unreadSec(bad)}${monthsBox(periods)}`;
+}
+function chipsRow(all){
+  const rv=all.filter(review).length;
+  const chips=[['all','Tous'],['win','Gains'],['loss','Pertes']].concat(rv?[['review','À relire']]:[]);
+  return `<div class="chips">${chips.map(([k,l])=>`<button class="chip ${S.res===k?'on':''}" data-res="${k}" type="button">${l}</button>`).join('')}${activeFilter()?'<button class="link" id="resetBtn" type="button">Réinitialiser</button>':''}</div>`;
+}
+function tools(all){
+  const months=[...new Set(all.map(monthKey))].sort().reverse();
+  const plats=[...new Set(all.map(c=>c.terminal||'terminal'))];
+  const tags=[...new Set(all.flatMap(tagsOf))].sort();
+  return `<div class="tools" style="--i:1">
+    <input class="search" id="q" type="search" placeholder="Chercher un ticker, un setup ou une note" value="${esc(S.q)}" autocomplete="off">
+    <div class="selrow">
+      <select class="sel" id="s_sort" aria-label="Trier">${Object.entries(SORTS).map(([k,v])=>`<option value="${k}"${S.sort===k?' selected':''}>${v[0]}</option>`).join('')}</select>
+      <select class="sel" id="s_month" aria-label="Période"><option value="all">Toutes les périodes</option>${months.map(k=>`<option value="${k}"${S.month===k?' selected':''}>${esc(monthLabel(k))}</option>`).join('')}</select>
+      <select class="sel" id="s_plat" aria-label="Plateforme"><option value="all">Toutes les plateformes</option>${plats.map(k=>`<option value="${k}"${S.plat===k?' selected':''}>${esc(PLAT[k]||cap(k))}</option>`).join('')}</select>
+      ${tags.length?`<select class="sel" id="s_tag" aria-label="Setup"><option value="all">Tous les setups</option>${tags.map(t=>`<option value="${esc(t)}"${S.tag===t?' selected':''}>${esc(t)}</option>`).join('')}</select>`:''}
+    </div>
+    ${chipsRow(all)}
+  </div>`;
+}
+function rankList(sorted){
+  const shown=S.all?sorted:sorted.slice(0,10);
+  const max=Math.max(...sorted.map(c=>Math.abs(val(c))),0.001);
+  return `<section class="sec" style="--i:2"><h2>${esc((SORTS[S.sort]||SORTS.pnl_desc)[0])}</h2><div class="box">
+    ${shown.map((c,i)=>{ const w=Math.max(Math.sqrt(Math.abs(val(c))/max)*100,4).toFixed(1), on=S.sel&&S.sel.has(c.id);
+      const sub=[platName(c),dayLabel(c.dateMs)].filter(Boolean).join(' · ');
+      return `<div class="row ${on?'picked':''}" data-id="${c.id}" tabindex="0" style="--i:${Math.min(i,12)}"><div class="r n">${S.sel?`<span class="ck ${on?'on':''}"></span>`:i+1}</div>${thumb(c)}
+      <div class="mid"><div class="t">${esc(c.token||'?')}${review(c)?'<span class="dot" title="À relire"></span>':''}${tagsOf(c).slice(0,2).map(t=>`<span class="tagp" style="margin:0 0 0 4px">${esc(t)}</span>`).join('')}</div><div class="sub">${esc(sub)}</div>
+      <div class="bar" style="width:${w}%;background:${c.pnl>=0?'var(--gain)':'var(--loss)'}"></div></div>
+      <div class="p n ${cls(c.pnl)}">${cu(c.pnl,isUsd(c)?'usd':'s3',fmt(c))}${isUsd(c)?'':sol(false)}</div></div>`; }).join('')||'<div class="empty">Aucun trade ne correspond à ces filtres.</div>'}
+    </div>
+    ${(!S.all&&sorted.length>10)?`<button class="link more" id="moreBtn" type="button">Voir les ${sorted.length} trades</button>`:''}</section>`;
+}
+const bulkBar = () => `<div class="bulk"><button class="btn" id="bCancel" type="button">Annuler</button><button class="btn" id="bAll" type="button">Tout</button><button class="btn danger" id="bDel" type="button"${S.sel.size?'':' disabled style="opacity:.5"'}>Supprimer ${S.sel.size||''}</button></div>`;
+
+/* ---------- WALLET ---------- */
+const WERR = {
+  secret_phrase:"Ça ressemble à une phrase secrète. Ne la colle jamais ici : il faut l'adresse publique, celle qu'on peut partager.",
+  private_key:"Ça ressemble à une clé privée. Ne la colle jamais ici : il faut l'adresse publique.",
+  bad_address:"Adresse invalide. Une adresse Solana fait 32 à 44 caractères.",
+  rpc_blocked:"Le serveur public a refusé la requête. Réessaie dans une minute, ou ajoute une clé Helius gratuite.",
+  rpc_limited:"Le serveur public est saturé. Réessaie dans une minute, ou ajoute une clé Helius gratuite.",
+  bad_key:"Clé Helius refusée. Vérifie-la sur helius.dev.",
+  network:"Impossible de joindre Helius. Vérifie ta connexion.",
+  bad_response:"Réponse inattendue de Helius.", unknown:"Erreur inattendue."
+};
+const walletErr = c => WERR[c] || (String(c).startsWith('http_')?'Helius a répondu avec une erreur ('+String(c).slice(5)+').':'Erreur inattendue.');
+const wCount = () => cards.filter(c=>c.src==='wallet').length;
+function walletView(){
+  const linked=!!W.address, n=wCount();
+  const last=W.last?new Date(W.last).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+  const hold=(W.holdings||[]);
+  const st=linked&&W.last?`<div class="wst" id="w_st"><span class="dotl"></span><span>Synchronisé le ${esc(last)} · ${n} trade${n>1?'s':''} · ${W.stats?W.stats.txs+' transactions lues':''}</span></div>`:`<div class="wst idle" id="w_st"><span class="dotl"></span><span>Pas encore synchronisé</span></div>`;
+  return `
+  <div class="ph"><div><h1 style="font-size:clamp(24px,5vw,34px);letter-spacing:-.035em;font-weight:800;margin:0">Wallet</h1>
+    <div class="dim" style="font-size:14px;margin-top:8px">Connecte ton adresse : tes trades Terminal, Axiom et GMGN arrivent tout seuls.</div></div></div>
+  <div class="wgrid">
+    <div class="card wf" style="--i:0"><div class="hd"><h3>Connexion</h3>${linked?`<span class="dim n" style="font-size:13px">${esc(shortAddr(W.address))}</span>`:''}</div>
+      <label for="w_addr">Adresse du wallet (publique)</label>
+      <input id="w_addr" value="${esc(W.address)}" placeholder="Colle l'adresse de ton wallet Terminal" autocomplete="off" spellcheck="false" ${IS_DEMO?'disabled':''}>
+      <label for="w_key">Clé Helius <span class="dim" style="font-weight:500">· optionnelle, pour aller plus vite</span></label>
+      <input id="w_key" type="password" value="${esc(W.key)}" placeholder="Laisse vide pour commencer" autocomplete="off" spellcheck="false" ${IS_DEMO?'disabled':''}>
+      <label for="w_pages">Historique à lire</label>
+      <select id="w_pages" ${IS_DEMO?'disabled':''}>${[[5,'500 dernières transactions'],[10,'1 000 dernières transactions'],[30,'3 000 dernières transactions'],[100,'10 000 dernières transactions']].map(([v,l])=>`<option value="${v}"${+W.pages===v?' selected':''}>${l}</option>`).join('')}</select>
+      <div class="wact"><button class="pill" id="w_go" type="button" ${IS_DEMO?'disabled style="opacity:.5"':''}>${linked&&W.last?'Resynchroniser':'Synchroniser'}</button>
+        <button class="chip" id="w_ph" type="button" ${IS_DEMO?'disabled style="opacity:.5"':''}>Utiliser Phantom</button>
+        ${linked?'<button class="chip" id="w_off" type="button">Déconnecter</button>':''}</div>
+      ${IS_DEMO?'<div class="wst idle"><span class="dotl"></span><span>La synchronisation fonctionne dans l\'application locale.</span></div>':st}
+      <div class="safe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5fe3b0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg><span>Lecture seule. L'adresse est publique : personne ne peut déplacer tes fonds avec. Ne colle jamais ta phrase secrète ni ta clé privée, l'application les refuse.</span></div>
+    </div>
+    <div style="display:grid;gap:16px">
+      <div class="card" style="--i:1"><div class="hd"><h3>Comment faire</h3></div>
+        <ol class="steps">
+          <li><span><b>Copie ton adresse.</b> Dans Terminal : Wallet, puis copie l'adresse. Axiom et GMGN utilisent le même wallet si tu l'as importé.</span></li>
+          <li><span><b>Clé Helius : facultative.</b> Sans clé, on lit tes 300 dernières transactions (plus lent). Avec une clé gratuite (helius.dev), tout l'historique, bien plus vite.</span></li>
+          <li><span><b>Synchronise.</b> Chaque achat et chaque vente est regroupé en trade, avec l'heure et la durée.</span></li>
+        </ol></div>
+      ${hold.length?`<div class="card" style="--i:2"><div class="hd"><h3>Positions ouvertes</h3><span class="dim" style="font-size:13px">${hold.length}</span></div>
+        ${hold.map(h=>`<div class="hold"><div><div class="t">${esc(h.symbol)}</div><div class="s">Depuis ${esc(dayLabel(h.openedTs*1000))}</div></div><div class="p n">${(+h.cost).toFixed(2)}${sol(false)}</div></div>`).join('')}</div>`:''}
+    </div>
+  </div>`;
+}
+function setWst(msg,kind){ const el=$('w_st'); if(!el) return; el.className='wst'+(kind?' '+kind:''); el.innerHTML='<span class="dotl"></span><span>'+msg+'</span>'; }
+async function walletSync(){
+  const a=$('w_addr').value.trim(), k=$('w_key').value.trim(), pages=+$('w_pages').value||10;
+  if(!a){ setWst('Colle l\'adresse de ton wallet.','err'); return; }
+  const btn=$('w_go'); btn.disabled=true; btn.style.opacity='.6';
+  setWst('Connexion à Helius…');
+  try{
+    const r=await fetch('/api/wallet/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({address:a,key:k,pages})});
+    const j=await r.json();
+    if(!r.ok){ setWst(esc(walletErr(j.error)),'err'); btn.disabled=false; btn.style.opacity=''; return; }
+    W.address=a; W.key=k; W.pages=pages; saveW();
+    for(;;){
+      await new Promise(res=>setTimeout(res,900));
+      const q=await (await fetch('/api/wallet/job/'+j.job)).json();
+      if(q.state==='running'){ setWst(q.phase==='fetch'?`Lecture des transactions… ${q.txs||0}${k?'':' (sans clé : compte 1 à 2 minutes)'}`:q.phase==='build'?'Reconstruction des trades…':'Récupération des noms de tokens…'); continue; }
+      if(q.state==='error'){ setWst(esc(walletErr(q.error))+(q.detail?' <span class="dim">'+esc(q.detail)+'</span>':''),'err'); break; }
+      const res=mergeWallet(q); W.last=Date.now(); W.holdings=q.holdings||[]; W.stats=q.stats; saveW(); saveSoon(true);
+      render({soft:true}); toast(res.added+' trade'+(res.added>1?'s':'')+' synchronisé'+(res.added>1?'s':'')+(res.matched?' · '+res.matched+' carte'+(res.matched>1?'s':'')+' associée'+(res.matched>1?'s':''):''));
+      return;
+    }
+  }catch(e){ setWst('Le serveur local ne répond pas.','err'); }
+  btn.disabled=false; btn.style.opacity='';
+}
+function attachCards(){
+  /* associe chaque PNL card lue (image) au trade du wallet correspondant : même ticker, même PnL à ~3 % */
+  const pool=cards.filter(c=>c.src!=='wallet'&&c.type==='trade'&&typeof c.pnl==='number'&&!isUsd(c)&&c.token);
+  let n=0;
+  cards.filter(c=>c.src==='wallet'&&!c.img).forEach(w=>{
+    const tol=Math.max(.02,Math.abs(w.pnl)*.03);
+    const m=pool.find(p=>p.token.toLowerCase()===(w.token||'').toLowerCase()&&Math.abs(p.pnl-w.pnl)<=tol);
+    if(!m) return;
+    w.img=m.img; w.file=m.file; if(m.terminal&&m.terminal!=='manuel') w.terminal=m.terminal;
+    w.tags=[...new Set([...tagsOf(w),...tagsOf(m)])]; w.note=w.note||m.note; w.mcIn=w.mcIn||m.mcIn; w.mcOut=w.mcOut||m.mcOut;
+    cards=cards.filter(c=>c!==m); pool.splice(pool.indexOf(m),1); n++;
+  });
+  return n;
+}
+function mergeWallet(res){
+  const old=new Map(cards.filter(c=>c.src==='wallet').map(c=>[c.id,c]));
+  cards=cards.filter(c=>c.src!=='wallet');
+  const hidden=new Set(W.hidden||[]); let added=0;
+  res.trades.forEach(t=>{
+    const id='w:'+t.mint.slice(0,8)+':'+t.firstSig.slice(0,8);
+    if(hidden.has(id)) return;
+    const o=old.get(id)||{};
+    cards.push({id,file:o.file||null,type:'trade',flags:[],edited:!!o.edited,src:'wallet',terminal:o.terminal||'wallet',currency:'SOL',token:t.symbol,pnl:t.pnl,invested:t.invested,pct:t.pct,
+      dateMs:t.closedTs*1000,openedMs:t.openedTs*1000,holdSec:t.holdSec,ca:t.mint,open:t.open,tags:o.tags||[],note:o.note,mcIn:o.mcIn,mcOut:o.mcOut,img:o.img});
+    added++;
+  });
+  const matched=attachCards();
+  S.day=null; return {added,matched};
+}
+function walletOff(){
+  W.address=''; W.key=''; W.last=0; W.holdings=[]; W.stats=null; saveW(); render({soft:true}); toast('Wallet déconnecté · tes trades restent dans le journal');
+}
+async function walletPhantom(){
+  const p=window.solana;
+  if(!p||!p.isPhantom){ toast('Phantom introuvable dans ce navigateur'); return; }
+  try{ const r=await p.connect(); $('w_addr').value=r.publicKey.toString(); toast('Adresse récupérée (lecture seule)'); }catch(e){ toast('Connexion annulée'); }
+}
+
+/* ---------- liaisons ---------- */
+function bind(){
+  const g=id=>$(id), on=(sel,fn)=>document.querySelectorAll(sel).forEach(fn);
+  if(g('csvBtn')) g('csvBtn').onclick=exportCsv;
+  if(g('w_go')) g('w_go').onclick=walletSync;
+  if(g('w_ph')) g('w_ph').onclick=walletPhantom;
+  if(g('w_off')) g('w_off').onclick=walletOff;
+  if(g('moreBtn')) g('moreBtn').onclick=()=>{S.all=true;render();};
+  if(g('resetBtn')) g('resetBtn').onclick=()=>{S.q='';S.res='all';S.month='all';S.plat='all';S.tag='all';render({soft:true});};
+  on('.tab',b=>b.onclick=()=>{ if(S.view!==b.dataset.view){ S.view=b.dataset.view; S.sel=null; render(); window.scrollTo({top:0,behavior:'smooth'}); } });
+  on('.chip[data-res]',b=>b.onclick=()=>{S.res=b.dataset.res;render({soft:true});});
+  const q=g('q'); if(q) q.oninput=()=>{ const pos=q.selectionStart; S.q=q.value; S.all=false; render({noAnim:true}); const n=g('q'); n.focus(); n.setSelectionRange(pos,pos); };
+  if(g('s_sort')) g('s_sort').onchange=e=>{S.sort=e.target.value;render({soft:true});};
+  if(g('s_month')) g('s_month').onchange=e=>{S.month=e.target.value;render({soft:true});};
+  if(g('s_plat')) g('s_plat').onchange=e=>{S.plat=e.target.value;render({soft:true});};
+  if(g('s_tag')) g('s_tag').onchange=e=>{S.tag=e.target.value;render({soft:true});};
+  on('.row[data-id]',r=>{ const act=()=>{ if(S.sel&&!r.closest('.unread')){ S.sel.has(r.dataset.id)?S.sel.delete(r.dataset.id):S.sel.add(r.dataset.id); render({noAnim:true}); } else openSheet(r.dataset.id); }; r.onclick=act; r.onkeydown=e=>{if(e.key==='Enter')act();}; });
+  on('tr.r',r=>r.onclick=()=>openSheet(r.dataset.id));
+  if(g('bCancel')) g('bCancel').onclick=()=>{S.sel=null;render({noAnim:true});};
+  if(g('bAll')) g('bAll').onclick=()=>{ filtered(false).forEach(c=>S.sel.add(c.id)); render({noAnim:true}); };
+  if(g('bDel')) g('bDel').onclick=()=>{ if(!S.sel.size) return; const n=S.sel.size; removeCards(S.sel); S.sel=null; toast(`${n} supprimé${n>1?'s':''}`); };
+  /* dashboard */
+  on('[data-cal]',b=>b.onclick=()=>{ const [y,m]=(S.calMonth||todayKey().slice(0,7)).split('-').map(Number), d=new Date(y,m-1+(+b.dataset.cal),1); S.calMonth=d.getFullYear()+'-'+pad(d.getMonth()+1); render({soft:true}); });
+  on('[data-day]',b=>b.onclick=()=>{ S.view='journal'; S.range='day'; S.day=b.dataset.day; render(); window.scrollTo({top:0,behavior:'smooth'}); });
+  if(g('setBtn')) g('setBtn').onclick=openSettings;
+  const svg=g('eqSvg'); if(svg&&EQ){
+    const tip=g('eqTip'), dot=g('eqDot'), ln=g('eqLine');
+    svg.onpointermove=e=>{ const r=svg.getBoundingClientRect(), x=(e.clientX-r.left)/r.width*EQ.W; let b=EQ.pts[0]; EQ.pts.forEach(p=>{ if(Math.abs(p.px-x)<Math.abs(b.px-x)) b=p; });
+      dot.setAttribute('cx',b.px); dot.setAttribute('cy',b.py); dot.setAttribute('opacity',1); ln.setAttribute('x1',b.px); ln.setAttribute('x2',b.px); ln.setAttribute('opacity',1);
+      tip.innerHTML=`<b class="n ${cls(b.v)}">${unit(b.v)}</b><span>${esc(dayLabel(b.ms))}${b.n?' · '+unit(b.d)+' ce jour':''}</span>`;
+      tip.style.left=(b.px/EQ.W*100)+'%'; tip.style.top=(b.py/240*r.height)+'px'; tip.style.opacity=1; };
+    svg.onpointerleave=()=>{ tip.style.opacity=0; dot.setAttribute('opacity',0); ln.setAttribute('opacity',0); };
+  }
+  /* journal */
+  on('[data-shift]',b=>b.onclick=()=>{ shiftRange(+b.dataset.shift); render({soft:true,dir:+b.dataset.shift}); });
+  on('[data-range]',b=>b.onclick=()=>{ S.range=b.dataset.range; render({soft:true}); });
+  if(g('todayBtn')) g('todayBtn').onclick=()=>{ S.day=todayKey(); render({soft:true}); };
+  if(g('pickDay')) g('pickDay').onclick=()=>{ const i=g('dateInp'); try{ i.showPicker(); }catch(e){ i.focus(); i.click(); } };
+  if(g('dateInp')) g('dateInp').onchange=e=>{ if(e.target.value){ S.day=e.target.value; render({soft:true}); } };
+  on('th[data-sort]',h=>h.onclick=()=>{ const k=h.dataset.sort; S.jsort=S.jsort.k===k?{k,d:-S.jsort.d}:{k,d:(k==='token'||k==='plat'||k==='date')?1:-1}; render({soft:true}); });
+  if(g('qaBtn')){ g('qaBtn').onclick=quickAdd; ['qa_t','qa_i','qa_p'].forEach(id=>g(id).onkeydown=e=>{ if(e.key==='Enter') quickAdd(); }); }
+  if(g('emptyAdd')) g('emptyAdd').onclick=()=>openSheet('new');
+}
+function bindDrop(){
+  const d=$('drop'); if(!d) return;
+  d.onclick=()=>$('file').click(); d.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();$('file').click();} };
+}
+function removeCards(ids){
+  const go=()=>{ const w=cards.filter(c=>ids.has(c.id)&&c.src==='wallet').map(c=>c.id); if(w.length){ W.hidden=[...new Set([...(W.hidden||[]),...w])]; saveW(); } cards=cards.filter(c=>!ids.has(c.id)); saveSoon(true); render({noAnim:true}); };
+  const rows=[...document.querySelectorAll('.row[data-id],tr.r')].filter(r=>ids.has(r.dataset.id));
+  if(rows.length&&!REDUCED){ rows.forEach((r,i)=>{ r.style.transitionDelay=Math.min(i,8)*25+'ms'; r.classList.add('out'); }); setTimeout(go,320); } else go();
+}
+
+/* ---------- fiche d'un trade (voir / corriger / ajouter) ---------- */
+const PLAT_OPTS = ['terminal','axiom','gmgn','photon','bullx','manuel','autre'];
+function openSheet(id){
+  const isNew = id==='new';
+  const c = isNew ? {id:rid(),type:'trade',flags:[],currency:'SOL',terminal:'manuel',dateMs:parseDate(S.day||todayKey()),tags:[]} : cards.find(x=>x.id===id);
+  if(!c) return;
+  const U=isUsd(c), bad=!isNew&&typeof c.pnl!=='number';
+  const ret=(c.invested&&c.pnl!=null)?c.pnl/c.invested*100:c.pct;
+  const approx=(U&&!bad&&!isNew&&solMode())?`≈ ${sgn(eq(c),2)} SOL`:'';
+  const posLabel=(c.positionMeaning==='total_value')?'Valeur':'Position';
+  const mult=(c.mcIn&&c.mcOut)?c.mcOut/c.mcIn:null;
+  const details=[c.mcIn?['MC entrée','$'+usd(c.mcIn,false).slice(1)]:null,c.mcOut?['MC sortie','$'+usd(c.mcOut,false).slice(1)]:null,mult?['Multiple',mult.toFixed(2)+'x']:null,c.holdSec!=null?['Durée',dur(c.holdSec)+(c.open?' · position ouverte':'')]:null,c.ca?['Contrat',esc(c.ca.slice(0,6)+'…'+c.ca.slice(-4))]:null].filter(Boolean);
+  const opts=[...new Set(PLAT_OPTS.concat(c.terminal||[]))];
+  const allTags=[...new Set(SETUPS.concat(trades().flatMap(tagsOf)))];
+  const view = isNew?'':`
+    <div class="pc ${!bad&&c.pnl<0?'neg':''}">
+      <div class="name">${esc(c.token||c.file||'Sans ticker')}</div>
+      ${tagsOf(c).length?`<div class="tg">${tagHtml(c)}</div>`:''}
+      <div class="lab">PNL</div>
+      <div class="amt n ${cls(c.pnl)}">${cu(bad?0:c.pnl,U?'usd':'s3',bad?'—':(U?usd(c.pnl):sgn(c.pnl,3)))}${U||bad?'':sol(true)}</div>
+      ${approx?`<div class="eq">${approx}</div>`:''}
+      <div class="cols">
+        <div><div class="k">Investi</div><div class="v n">${money(c,c.invested,c.invested>=1?2:4)}</div></div>
+        <div><div class="k">${c.position!=null?posLabel:'Date'}</div><div class="v n">${c.position!=null?money(c,c.position,2):(c.dateMs?esc(dayLabel(c.dateMs)):'—')}</div></div>
+        <div><div class="k">Retour</div><div class="v n ${cls(ret)}">${ret==null?'—':pctf(ret)}</div></div>
+      </div>
+    </div>
+    ${details.length?`<div class="box" style="margin-top:16px">${details.map(([k,v])=>`<div class="fact" style="padding:12px 20px"><span>${k}</span><b class="n">${v}</b></div>`).join('')}</div>`:''}
+    ${bad?'<p class="alert">Cette carte n\'a pas pu être lue. Saisis les chiffres à la main.</p>':review(c)?'<p class="alert">Les chiffres lus ne se recoupent pas. Compare avec la photo de ta carte.</p>':''}
+    ${c.note?`<p class="nt">${esc(c.note)}</p>`:''}
+    ${c.img?`<img class="shot" src="${c.img}" alt="Carte d'origine">`:''}`;
+  $('sheet').innerHTML=`<div class="sh-top"><div class="tk">${isNew?'Nouveau trade':esc(platName(c))+(c.dateMs?' · '+esc(dayLabel(c.dateMs)):'')}</div><button class="link" id="x" type="button">Fermer</button></div>
+    ${view}
+    <div class="edit" id="edit">
+      <label for="e_t">Ticker</label><input id="e_t" value="${esc(c.token)}" autocomplete="off">
+      <div class="f2"><div><label for="e_c">Devise</label><select id="e_c"><option value="SOL"${U?'':' selected'}>SOL</option><option value="USD"${U?' selected':''}>Dollars</option></select></div>
+      <div><label for="e_s">Plateforme</label><select id="e_s">${opts.map(o=>`<option value="${esc(o)}"${o===c.terminal?' selected':''}>${esc(PLAT[o]||cap(o))}</option>`).join('')}</select></div></div>
+      <div class="f2"><div><label for="e_i">Investi</label><input id="e_i" inputmode="decimal" value="${c.invested??''}"></div><div><label for="e_p">PnL</label><input id="e_p" inputmode="decimal" value="${c.pnl??''}" placeholder="+0.85"></div></div>
+      <label for="e_d">Date du trade</label><input id="e_d" type="date" value="${c.dateMs?isoDay(c.dateMs):''}">
+      <label for="e_tags">Setup / tags</label><input id="e_tags" value="${esc(tagsOf(c).join(', '))}" placeholder="Snipe, FOMO…" autocomplete="off">
+      <div id="e_chips" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
+      <div class="f2"><div><label for="e_mi">MC entrée ($)</label><input id="e_mi" inputmode="decimal" value="${c.mcIn??''}" placeholder="40K"></div><div><label for="e_mo">MC sortie ($)</label><input id="e_mo" inputmode="decimal" value="${c.mcOut??''}" placeholder="1.2M"></div></div>
+      <label for="e_ca">Adresse du contrat (optionnel)</label><input id="e_ca" value="${esc(c.ca)}" autocomplete="off" spellcheck="false">
+      <label for="e_n">Note</label><textarea id="e_n" placeholder="Pourquoi tu es entré, ce que tu referais…">${esc(c.note)}</textarea>
+    </div>
+    <div class="btns"><button class="btn" id="ed" type="button"${isNew?' style="display:none"':''}>${bad?'Saisir':'Corriger'}</button><button class="btn main" id="ok" type="button" style="display:none">${isNew?'Ajouter':'Enregistrer'}</button>${isNew?'':'<button class="btn red" id="del" type="button">Supprimer</button>'}</div>
+    ${isNew?'':'<div class="soon">Analyse IA du trade : bientôt, une fois ton wallet relié.</div>'}`;
+  $('sheet').classList.add('open'); $('shade').classList.add('on');
+  $('x').onclick=closeSheet; if(!bad&&!isNew) countUps($('sheet'),true);
+  const chips=()=>{ const cur=$('e_tags').value.split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+    $('e_chips').innerHTML=allTags.map(t=>`<span class="tagp pick ${cur.includes(t.toLowerCase())?'on':''}" data-t="${esc(t)}">${esc(t)}</span>`).join('');
+    $('e_chips').querySelectorAll('.pick').forEach(p=>p.onclick=()=>{ const list=$('e_tags').value.split(',').map(s=>s.trim()).filter(Boolean), t=p.dataset.t, i=list.findIndex(x=>x.toLowerCase()===t.toLowerCase()); if(i>=0) list.splice(i,1); else list.push(t); $('e_tags').value=list.join(', '); chips(); }); };
+  chips(); $('e_tags').oninput=chips;
+  const openEdit=()=>{ $('edit').style.display='block'; $('ed').style.display='none'; $('ok').style.display='block'; };
+  $('ed').onclick=openEdit; if(bad||isNew) openEdit();
+  if(isNew) setTimeout(()=>{ const t=$('e_t'); if(t) t.focus(); },350);
+  if(!isNew) $('del').onclick=()=>{ const b=$('del'); if(!b.classList.contains('sure')){ b.classList.add('sure'); b.textContent='Confirmer'; setTimeout(()=>{ if(b.isConnected){ b.classList.remove('sure'); b.textContent='Supprimer'; } },3000); return; } closeSheet(); removeCards(new Set([c.id])); toast('Supprimé'); };
+  $('ok').onclick=()=>{
+    const p=num($('e_p').value); if(p==null){ toast('Entre un PnL'); return; }
+    const tk=$('e_t').value.trim(); if(isNew&&!tk){ toast('Entre un ticker'); return; }
+    c.token=tk||c.token; c.currency=$('e_c').value; c.terminal=$('e_s').value; c.pnl=p; c.invested=num($('e_i').value);
+    const d=$('e_d').value; if(d) c.dateMs=parseDate(d);
+    c.tags=[...new Set($('e_tags').value.split(',').map(s=>s.trim()).filter(Boolean))];
+    c.mcIn=num($('e_mi').value)||undefined; c.mcOut=num($('e_mo').value)||undefined; c.ca=$('e_ca').value.trim()||undefined;
+    c.note=$('e_n').value.trim()||undefined; c.edited=true; delete c.error;
+    if(isNew){ c.type='trade'; cards.push(c); if(c.dateMs) S.day=isoDay(c.dateMs); }
+    closeSheet(); render({noAnim:true}); saveSoon(); toast(isNew?'Trade ajouté':'Enregistré');
+  };
+}
+function closeSheet(){ $('sheet').classList.remove('open'); $('shade').classList.remove('on'); }
+
+/* ---------- menus ---------- */
+function openPanel(html){ $('sheet').innerHTML=html; $('sheet').classList.add('open'); $('shade').classList.add('on'); const x=$('x'); if(x) x.onclick=closeSheet; }
+function openAdd(){
+  openPanel(`<div class="sh-top"><div class="tk">Ajouter</div><button class="link" id="x" type="button">Fermer</button></div><div class="menu">
+    <button class="mi" id="a_trade" type="button"><span><b>Un trade à la main</b><small>Ticker, PnL, setup, note</small></span><i>›</i></button>
+    <button class="mi" id="a_img" type="button"><span><b>Des cartes PnL</b><small>Images PNG ou JPG : Terminal, Axiom, GMGN</small></span><i>›</i></button>
+    <button class="mi" id="a_csv" type="button"><span><b>Un fichier CSV</b><small>Exporté d'ici, de Sheets ou d'Excel</small></span><i>›</i></button>
+    <button class="mi" id="a_gs" type="button"><span><b>Un Google Sheets</b><small>Lien de partage ou copier-coller</small></span><i>›</i></button></div>`);
+  $('a_trade').onclick=()=>{ closeSheet(); setTimeout(()=>openSheet('new'),120); };
+  $('a_img').onclick=()=>{ closeSheet(); IS_DEMO?toast('L\'import d\'images est dans l\'application locale'):$('file').click(); };
+  $('a_csv').onclick=()=>{ closeSheet(); $('csv').click(); };
+  $('a_gs').onclick=openSheetsImport;
+}
+function openMenu(){
+  const n=activeFilter()?filtered(false).length:trades().length;
+  openPanel(`<div class="sh-top"><div class="tk">Données</div><button class="link" id="x" type="button">Fermer</button></div><div class="menu">
+    <button class="mi" id="m_set" type="button"><span><b>Objectifs du jour</b><small>Objectif de gain et perte maximale</small></span><i>›</i></button>
+    <button class="mi" id="m_exp" type="button"><span><b>Exporter en CSV</b><small>${n} trade${n>1?'s':''}${activeFilter()?' (filtre actuel)':''}</small></span><i>›</i></button>
+    <button class="mi" id="m_cp" type="button"><span><b>Copier pour Google Sheets</b><small>Copie le tableau, puis colle-le dans une feuille</small></span><i>›</i></button>
+    <button class="mi" id="m_sel" type="button"><span><b>Sélectionner pour supprimer</b><small>Coche plusieurs cartes</small></span><i>›</i></button>
+    <button class="mi red" id="m_clr" type="button"><span><b>Tout effacer</b><small>Supprime tous les trades de l'app</small></span><i>›</i></button></div>`);
+  $('m_set').onclick=openSettings;
+  $('m_exp').onclick=()=>{ closeSheet(); exportCsv(); };
+  $('m_cp').onclick=copyForSheets;
+  $('m_sel').onclick=()=>{ closeSheet(); S.view='cards'; S.sel=new Set(); render(); toast('Touche les cartes à supprimer'); };
+  $('m_clr').onclick=()=>{ const b=$('m_clr'); if(!b.dataset.sure){ b.dataset.sure='1'; b.querySelector('b').textContent='Confirmer : tout effacer'; return; } cards=[]; S.sel=null; S.day=null; closeSheet(); saveSoon(true); render(); toast('Tout est effacé'); };
+}
+function openSettings(){
+  const u=solMode()?'SOL':'$';
+  openPanel(`<div class="sh-top"><div class="tk">Objectifs du jour</div><button class="link" id="x" type="button">Fermer</button></div>
+    <label class="lbl" for="g_t">Objectif de gain (${u})</label><input class="fld" id="g_t" inputmode="decimal" value="${SET.target??''}" placeholder="${solMode()?'ex. 1':'ex. 150'}">
+    <label class="lbl" for="g_m">Perte maximale par jour (${u})</label><input class="fld" id="g_m" inputmode="decimal" value="${SET.maxLoss??''}" placeholder="${solMode()?'ex. 0.5':'ex. 75'}">
+    <p class="hint">L'objectif alimente l'anneau du Dashboard. Une alerte s'affiche quand la perte maximale est atteinte. Ces réglages restent dans ce navigateur.</p>
+    <div class="btns"><button class="btn" id="g_clr" type="button">Effacer</button><button class="btn main" id="g_ok" type="button">Enregistrer</button></div>`);
+  $('g_ok').onclick=()=>{ SET.target=num($('g_t').value)||null; const m=num($('g_m').value); SET.maxLoss=m?Math.abs(m):null; saveSet(); closeSheet(); render({noAnim:true}); toast('Objectifs enregistrés'); };
+  $('g_clr').onclick=()=>{ SET={target:null,maxLoss:null}; saveSet(); closeSheet(); render({noAnim:true}); toast('Objectifs effacés'); };
+}
+function openSheetsImport(){
+  openPanel(`<div class="sh-top"><div class="tk">Google Sheets</div><button class="link" id="x" type="button">Fermer</button></div>
+    <label class="lbl" style="margin-top:0" for="g_url">Lien de la feuille</label>
+    <input class="fld" id="g_url" placeholder="https://docs.google.com/spreadsheets/d/…" ${IS_DEMO?'disabled':''}>
+    <p class="hint">${IS_DEMO?'Le lien fonctionne dans l\'application locale.':'Dans Sheets : Partager, puis « Tous les utilisateurs disposant du lien » en lecture.'}</p>
+    <label class="lbl" style="margin-top:24px" for="g_txt">Ou colle le tableau ici</label>
+    <textarea class="fld" id="g_txt" placeholder="Sélectionne tes cellules dans Sheets, copie, colle ici"></textarea>
+    <p class="hint">Colonnes reconnues : ticker, pnl, investi, devise, plateforme, date, tags, mc_in, mc_out, ca, note.</p>
+    <div class="btns"><button class="btn main" id="g_go" type="button">Importer</button></div>`);
+  $('g_go').onclick=async()=>{
+    const url=$('g_url').value.trim(), txt=$('g_txt').value;
+    try{
+      let data=txt;
+      if(url){ const r=await fetch('/api/sheet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})}); const j=await r.json();
+        if(!r.ok){ toast(j.error==='private'?'Feuille privée : partage-la par lien':j.error==='bad_url'?'Lien Google Sheets invalide':'Impossible de lire la feuille'); return; } data=j.csv; }
+      if(!data.trim()){ toast('Rien à importer'); return; }
+      closeSheet(); importTable(data);
+    }catch(e){ toast('Impossible de lire la feuille'); }
+  };
+}
+
+/* ---------- CSV / Sheets ---------- */
+function parseTable(txt){
+  txt=txt.replace(/^﻿/,'').trim(); if(!txt) return [];
+  const first=txt.split(/\r?\n/)[0];
+  const d=[['\t',(first.match(/\t/g)||[]).length],[';',(first.match(/;/g)||[]).length],[',',(first.match(/,/g)||[]).length]].sort((a,b)=>b[1]-a[1])[0][0];
+  const rows=[]; let row=[], cell='', q=false;
+  for(let i=0;i<txt.length;i++){ const ch=txt[i];
+    if(q){ if(ch==='"'){ if(txt[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=ch; }
+    else if(ch==='"') q=true;
+    else if(ch===d){ row.push(cell); cell=''; }
+    else if(ch==='\n'||ch==='\r'){ if(ch==='\r'&&txt[i+1]==='\n') i++; row.push(cell); cell=''; rows.push(row); row=[]; }
+    else cell+=ch;
+  }
+  row.push(cell); rows.push(row);
+  return rows.filter(r=>r.some(x=>x.trim()!==''));
+}
+function num(v){
+  if(v==null) return null; let s=String(v).trim().replace(/[\s$€%+]/g,'').replace('−','-'); if(!s) return null;
+  let m=1; const suf=s.slice(-1).toUpperCase();
+  if(s.length>1&&'KMB'.includes(suf)){ m={K:1e3,M:1e6,B:1e9}[suf]; s=s.slice(0,-1); }
+  if(s.includes(',')&&!s.includes('.')) s=s.replace(',','.'); else s=s.replace(/,/g,'');
+  const n=parseFloat(s); return isNaN(n)?null:n*m;
+}
+function parseDate(v){
+  if(!v) return null; v=String(v).trim();
+  let m=v.match(/^(\d{4})-(\d{2})-(\d{2})/); if(m) return new Date(+m[1],+m[2]-1,+m[3],12).getTime();
+  m=v.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})/); if(m){ let y=+m[3]; if(y<100) y+=2000; return new Date(y,+m[2]-1,+m[1],12).getTime(); }
+  const t=Date.parse(v); return isNaN(t)?null:t;
+}
+const HDR = {token:['ticker','token','coin','symbole','nom','name'], pnl:['pnl','profit','gain','resultat','résultat'], inv:['investi','invested','investment','invest','mise'],
+  cur:['devise','currency','monnaie'], plat:['plateforme','platform','terminal','source'], date:['date','date_estimee','date estimée','jour','time'], note:['note','notes','commentaire'], pct:['retour','retour_pct','pct','return','%'],
+  tags:['tags','tag','setup','setups'], mcIn:['mc_in','mc entrée','mc entree','mcin','entry mc'], mcOut:['mc_out','mc sortie','mcout','exit mc'], ca:['ca','contrat','contract','address','adresse']};
+function importTable(txt){
+  const rows=parseTable(txt); if(rows.length<2){ toast('Tableau vide'); return; }
+  const head=rows[0].map(h=>h.toLowerCase().replace(/\(.*?\)/g,'').trim()), col={};
+  for(const [k,names] of Object.entries(HDR)){ const i=head.findIndex(h=>names.includes(h)); if(i>=0) col[k]=i; }
+  if(col.pnl==null){ toast('Colonne « pnl » introuvable'); return; }
+  const seen=new Set(trades().map(kk)); let add=0, dup=0, skip=0;
+  const cell=(r,k)=>col[k]!=null?(r[col[k]]||''):'';
+  rows.slice(1).forEach(r=>{
+    const pnl=num(cell(r,'pnl')); if(pnl==null){ skip++; return; }
+    const curRaw=cell(r,'cur').trim().toLowerCase(), plat=cell(r,'plat').trim().toLowerCase();
+    const c={id:rid(),file:null,type:'trade',flags:[],edited:true,
+      token:cell(r,'token').trim()||null, pnl, invested:num(cell(r,'inv')),
+      currency:/usd|\$|dollar/.test(curRaw)?'USD':'SOL', terminal:plat||'import',
+      dateMs:parseDate(cell(r,'date')), pct:num(cell(r,'pct'))};
+    const tg=cell(r,'tags').split(/[;|,]/).map(s=>s.trim()).filter(Boolean); if(tg.length) c.tags=tg;
+    const mi=num(cell(r,'mcIn')), mo=num(cell(r,'mcOut')); if(mi) c.mcIn=mi; if(mo) c.mcOut=mo;
+    if(cell(r,'ca').trim()) c.ca=cell(r,'ca').trim();
+    if(cell(r,'note').trim()) c.note=cell(r,'note').trim();
+    if(seen.has(kk(c))){ dup++; return; } seen.add(kk(c)); cards.push(c); add++;
+  });
+  if(!S.day) S.day=null;
+  saveSoon(); render();
+  toast(`${add} importé${add>1?'s':''}${dup?` · ${dup} doublon${dup>1?'s':''}`:''}${skip?` · ${skip} ignoré${skip>1?'s':''}`:''}`);
+}
+function tableRows(){
+  const F=(activeFilter()?filtered(false):trades()).sort(SORTS.date_asc[1]);
+  const rows=[['ticker','plateforme','devise','pnl','investi','retour_pct','date','tags','mc_in','mc_out','ca','note']];
+  F.forEach(c=>rows.push([c.token||'',c.terminal||'terminal',c.currency||'SOL',c.pnl,c.invested??'',c.invested?+(c.pnl/c.invested*100).toFixed(2):'',c.dateMs?isoDay(c.dateMs):'',tagsOf(c).join('; '),c.mcIn??'',c.mcOut??'',c.ca||'',c.note||'']));
+  return rows;
+}
+const csvCell = v => { const s=String(v); return /[",\n;]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; };
+function exportCsv(){
+  const txt='﻿'+tableRows().map(r=>r.map(csvCell).join(',')).join('\n');
+  if(IS_DEMO){
+    navigator.clipboard.writeText(txt).then(()=>toast('CSV copié')).catch(()=>{
+      openPanel(`<div class="sh-top"><div class="tk">Export</div><button class="link" id="x" type="button">Fermer</button></div><p style="color:var(--mute);font-size:14px">Sélectionne tout et copie.</p><textarea class="ro" id="ta" readonly>${esc(txt)}</textarea>`); $('ta').select();
+    });
+    return;
+  }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([txt],{type:'text/csv'})); a.download='pnl_cards.csv'; a.click();
+}
+function copyForSheets(){
+  const txt=tableRows().map(r=>r.join('\t')).join('\n');
+  const done=()=>{ closeSheet(); toast('Copié : colle dans Sheets (Ctrl+V)'); try{ window.open('https://sheets.new','_blank'); }catch(e){} };
+  navigator.clipboard.writeText(txt).then(done).catch(()=>{ openPanel(`<div class="sh-top"><div class="tk">Copier pour Sheets</div><button class="link" id="x" type="button">Fermer</button></div><p style="color:var(--mute);font-size:14px">Sélectionne tout, copie, puis colle dans une feuille.</p><textarea class="ro" id="ta" readonly>${esc(txt)}</textarea>`); $('ta').select(); });
+}
+
+/* ---------- sauvegarde + import d'images ---------- */
+let tmr; function saveSoon(now){ if(IS_DEMO) return; clearTimeout(tmr); tmr=setTimeout(()=>fetch('/api/cards',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(cards)}).catch(()=>toast('Sauvegarde impossible')),now?0:400); }
+
+async function handleFiles(list){
+  if(IS_DEMO){ toast('L\'import d\'images est dans l\'application locale'); return; }
+  const files=[...list].filter(f=>/\.(png|jpe?g|webp)$/i.test(f.name)); if(!files.length){ toast('Dépose des images PNG ou JPG'); return; }
+  let prog=$('prog'); if(prog) prog.style.display='block';
+  let done=0, dup=0, okN=0, badN=0, noTess=false, srvErr=false;
+  const seen=new Set(trades().map(kk));
+  for(let i=0;i<files.length;i+=4){
+    const batch=files.slice(i,i+4), fd=new FormData();
+    batch.forEach(f=>fd.append('files',f)); fd.append('mtimes',JSON.stringify(batch.map(f=>f.lastModified)));
+    try{
+      const resp=await fetch('/api/extract',{method:'POST',body:fd});
+      if(!resp.ok) throw new Error('http '+resp.status);
+      const res=await resp.json();
+      res.forEach(r=>{
+        if(r.error==='no_tesseract') noTess=true;
+        const good=(r.type==='period')||ok(r);
+        if(!good){ badN++; cards.push(r); return; }
+        if(r.type==='trade'&&r.token&&seen.has(kk(r))){dup++;return;}
+        seen.add(kk(r)); okN++; cards.push(r);
+      });
+    }catch(e){ srvErr=true; break; }
+    done+=batch.length;
+    if(prog&&prog.firstElementChild) prog.firstElementChild.style.width=(done/files.length*100)+'%';
+  }
+  notice='';
+  if(srvErr) notice='<b>Le serveur local ne répond pas.</b> Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.';
+  else if(noTess) notice='<b>Tesseract n\'est pas installé.</b> C\'est le moteur qui lit les images. Installe-le (winget install --id UB-Mannheim.TesseractOCR), puis relance start.bat.';
+  else if(badN) notice=`<b>${badN} carte${badN>1?'s':''} non lue${badN>1?'s':''}.</b> Saisis-les à la main dans l'onglet Cartes, ou vérifie qu'il s'agit bien d'une carte Terminal, Axiom ou GMGN (pas d'une capture d'écran).`;
+  if(okN&&!trades().some(c=>c.dateMs&&isoDay(c.dateMs)===S.day)) S.day=null;
+  attachCards(); saveSoon(); render();
+  toast(srvErr?'Échec de l\'import':`${okN} lue${okN>1?'s':''}${badN?` · ${badN} à saisir`:''}${dup?` · ${dup} doublon${dup>1?'s':''}`:''}`);
+}
+
+let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2600); }
+
+$('addBtn').onclick=openAdd;
+$('menuBtn').onclick=openMenu;
+$('file').onchange=e=>{ handleFiles(e.target.files); e.target.value=''; };
+$('csv').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(f) f.text().then(importTable); };
+window.addEventListener('dragover',e=>{e.preventDefault(); const d=$('drop'); if(d) d.classList.add('over');});
+window.addEventListener('dragleave',()=>{const d=$('drop'); if(d) d.classList.remove('over');});
+window.addEventListener('drop',e=>{e.preventDefault(); const d=$('drop'); if(d) d.classList.remove('over'); const fs=[...e.dataTransfer.files]; const csv=fs.find(f=>/\.(csv|tsv)$/i.test(f.name)); if(csv) csv.text().then(importTable); else handleFiles(fs);});
+$('shade').onclick=closeSheet; document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
+
+if(!IS_DEMO) fetch('/api/cards').then(r=>r.json()).then(d=>{ cards=d; render(); }).catch(()=>{});
+render();
+</script>
+</body>
+</html>
