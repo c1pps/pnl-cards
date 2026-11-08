@@ -344,6 +344,21 @@ textarea.ro{width:100%;height:220px;background:var(--s1);border:1px solid var(--
   .tbl .tk .th{display:none}
   .axis{font-size:22px}
 }
+/* ---- v5.2 : langue + crédit ---- */
+.lang{display:inline-flex;align-items:center;height:40px;padding:3px;border:1px solid var(--line2);border-radius:999px;background:var(--s1)}
+.lang button{height:32px;min-width:38px;padding:0 10px;border:0;border-radius:999px;background:transparent;color:var(--mute);font-weight:700;font-size:12px;letter-spacing:.04em;cursor:pointer;transition:background .2s,color .2s}
+.lang button.on{background:var(--text);color:#0a0b0e}
+.actions{display:flex;align-items:center;gap:8px}
+.credit{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:20px 0 40px;font-size:13px;color:var(--mute)}
+.credit a{color:var(--text);font-weight:600;text-decoration:none;border-bottom:1px solid var(--line2);transition:border-color .2s,color .2s}
+.credit a:hover{border-color:var(--gain);color:var(--gain)}
+.credit i{width:3px;height:3px;border-radius:50%;background:var(--line2)}
+/* ---- v5.1 : saisie détaillée ---- */
+.fgrp{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:24px 0 -4px;padding-top:20px;border-top:1px solid var(--line)}
+.calc{margin-top:16px;padding:12px 16px;border:1px solid var(--line);border-radius:var(--r2);background:rgba(95,227,176,.03);font-size:13px;color:var(--mute);line-height:1.6;min-height:46px}
+.calc:empty{display:none}.calc b{color:var(--text);font-weight:700}.calc b.gain{color:var(--gain)}.calc b.loss{color:var(--loss)}
+.qa2{margin-top:12px;font-size:13px}
+.mcc{display:flex;flex-direction:column;gap:2px;align-items:flex-end;line-height:1.25}.mcc small{color:var(--mute);font-size:12px}
 /* ---- v5 : espacements, animations douces, wallet ---- */
 .pv{display:inline-flex;align-items:center;justify-content:flex-end;gap:8px}
 .pv .solm{width:13px;height:13px}
@@ -394,7 +409,7 @@ textarea.ro{width:100%;height:220px;background:var(--s1);border:1px solid var(--
 <div class="page">
   <div class="top">
     <div class="brand"><i></i>PnL Cards</div>
-    <div class="actions"><button class="pill" id="addBtn" type="button"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#0a0b0e" stroke-width="2.4" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>Ajouter</button><button class="ico" id="menuBtn" type="button" aria-label="Menu"><svg width="18" height="4" viewBox="0 0 18 4" fill="#f4f5f7"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></svg></button></div>
+    <div class="actions"><div class="lang" role="group" aria-label="Langue"><button type="button" id="lFr">FR</button><button type="button" id="lEn">EN</button></div><button class="pill" id="addBtn" type="button"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#0a0b0e" stroke-width="2.4" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>Ajouter</button><button class="ico" id="menuBtn" type="button" aria-label="Menu"><svg width="18" height="4" viewBox="0 0 18 4" fill="#f4f5f7"><circle cx="2" cy="2" r="2"/><circle cx="9" cy="2" r="2"/><circle cx="16" cy="2" r="2"/></svg></button></div>
     <input id="file" type="file" accept="image/png,image/jpeg" multiple hidden>
     <input id="csv" type="file" accept=".csv,.tsv,.txt,text/csv" hidden>
   </div>
@@ -419,6 +434,105 @@ try{ SET = Object.assign(SET, JSON.parse(localStorage.getItem('pnl_set')||'{}'))
 const saveSet = () => { try{ localStorage.setItem('pnl_set',JSON.stringify(SET)); }catch(e){} };
 
 const REVIEW = ['amount_mismatch','usd_unverified','invested_unverified','pct_vs_usd_mismatch'];
+/* ---------- LANGUE (FR / EN) ---------- */
+let LANG = 'fr';
+try{ LANG = localStorage.getItem('pnl_lang') || ((navigator.language||'fr').toLowerCase().startsWith('fr')?'fr':'en'); }catch(e){}
+const LOC = LANG==='fr'?'fr-FR':'en-GB';
+const WD_SHORT = LANG==='fr'?['Lun','Mar','Mer','Jeu','Ven','Sam','Dim']:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WD_LET = LANG==='fr'?['L','M','M','J','V','S','D']:['M','T','W','T','F','S','S'];
+const EN = {
+'Dashboard':'Dashboard','Journal':'Journal','Cartes':'Cards','Wallet':'Wallet','Ajouter':'Add','Fermer':'Close','Enregistrer':'Save','Corriger':'Edit','Supprimer':'Delete','Confirmer':'Confirm','Effacer':'Clear','Définir':'Set','Modifier':'Edit','Importer':'Import','Réinitialiser':'Reset filters','Saisir':'Enter',
+'Exporter en CSV':'Export as CSV','Aujourd\'hui':'Today','aujourd\'hui':'today','7 derniers jours':'Last 7 days','Ce mois-ci':'This month','Total':'Total','Capital réalisé':'Realized capital','Courbe de capital':'Equity curve','Calendrier':'Calendar','Sem.':'Wk','Total du mois':'Month total',
+'Objectif du jour':'Daily goal','Objectifs du jour':'Daily goals','Objectif':'Goal','Perte max':'Max loss','Série verte':'Green streak','Meilleur jour':'Best day','Pire jour':'Worst day','Objectif de gain (SOL)':'Profit goal (SOL)','Perte maximale par jour (SOL)':'Max loss per day (SOL)','Objectif de gain et perte maximale':'Profit goal and max loss',
+'L\'objectif alimente l\'anneau du Dashboard. Une alerte s\'affiche quand la perte maximale est atteinte. Ces réglages restent dans ce navigateur.':'The goal feeds the Dashboard ring. An alert appears when the max loss is hit. These settings stay in this browser.',
+'Résultat par jour':'Daily result','Résultat par mois':'Monthly result','Par jour de la semaine':'By weekday','Par plateforme':'By platform','Par setup':'By setup','Chiffres clés':'Key numbers','Cartes mensuelles':'Monthly cards',
+'Taux de gain':'Win rate','Facteur de profit':'Profit factor','PnL moyen':'Average PnL','Retour médian':'Median return','Gain moyen':'Average win','Perte moyenne':'Average loss','Plus grosse mise':'Biggest stake','Mise totale':'Total staked','Meilleur trade':'Best trade','Meilleur':'Best','Pire':'Worst','Gains':'Wins','Pertes':'Losses','Trades':'Trades','Retour':'Return','Investi':'Invested','Durée':'Duration','Durée de détention':'Holding time','Moyenne':'Average','Trades gagnants':'Winning trades','Trades perdants':'Losing trades','Heure':'Time','Contrat':'Contract','Montant reçu':'Amount received','Multiple (MC)':'Multiple (MC)','MC entrée':'Entry MC','MC sortie':'Exit MC','MC entrée → sortie':'Entry → exit MC','Plateforme':'Platform','Setup':'Setup','Date':'Date','Ticker':'Ticker','Note':'Note',
+'Jour':'Day','Semaine':'Week','Mois':'Month','Tout':'All','Tous':'All','Précédent':'Previous','Suivant':'Next','Mois précédent':'Previous month','Mois suivant':'Next month','Choisir une date':'Pick a date','Tous les trades':'All trades','Détail':'Details','Trier':'Sort','Période':'Period','Sans date':'No date',
+'Toutes les plateformes':'All platforms','Tous les setups':'All setups','Toutes les périodes':'All periods','Plus récents':'Newest','Plus anciens':'Oldest','Meilleurs d\'abord':'Best first','Pires d\'abord':'Worst first','Chercher un ticker, un setup ou une note':'Search a ticker, setup or note',
+'Ajout rapide':'Quick add','Ajouter avec plus de détails : MC, heure, reçu, tags, note':'Add with more details: MC, time, received, tags, note','Ticker, PnL requis':'Ticker and PnL required','PnL (ex. +0.8)':'PnL (e.g. +0.8)','Dollars':'Dollars','Devise':'Currency','Nouveau trade':'New trade',
+'Aucun trade ce jour-là.':'No trades that day.','Aucun trade sur cette période.':'No trades in this period.','Il faut au moins 2 jours de trades pour tracer la courbe.':'You need at least 2 trading days to draw the curve.','Rien à afficher.':'Nothing to show.',
+'Heure (optionnel)':'Time (optional)','Entrée et sortie':'Entry and exit','Montants':'Amounts','Reçu à la vente':'Received on sale','Bénéfice (PnL)':'Profit (PnL)','Setup / tags':'Setup / tags','Adresse du contrat (optionnel)':'Contract address (optional)','Pourquoi tu es entré, ce que tu referais…':'Why you entered, what you would redo…','MC entrée ($)':'Entry MC ($)','MC sortie ($)':'Exit MC ($)','Snipe, FOMO…':'Snipe, FOMO…','Analyse IA du trade : bientôt, une fois ton wallet relié.':'AI trade review: coming soon, once your wallet is linked.',
+'Cette carte n\'a pas pu être lue. Saisis les chiffres à la main.':'This card could not be read. Enter the numbers by hand.','Les chiffres lus ne se recoupent pas. Compare avec la photo de ta carte.':'The numbers read do not add up. Compare with the photo of your card.','Carte d\'origine':'Original card','À relire':'Check',
+'Un trade à la main':'A trade by hand','Ticker, PnL, setup, note':'Ticker, PnL, setup, note','Des cartes PnL':'PnL cards','Images PNG ou JPG : Terminal, Axiom, GMGN':'PNG or JPG images: Terminal, Axiom, GMGN','Un fichier CSV':'A CSV file','Exporté d\'ici, de Sheets ou d\'Excel':'Exported from here, Sheets or Excel','Un Google Sheets':'A Google Sheet','Lien de partage ou copier-coller':'Share link or copy-paste',
+'Données':'Data','Exporter en CSV ':'Export as CSV','Copier pour Google Sheets':'Copy for Google Sheets','Copie le tableau, puis colle-le dans une feuille':'Copy the table, then paste it into a sheet','Sélectionner pour supprimer':'Select to delete','Coche plusieurs cartes':'Tick several cards','Tout effacer':'Delete everything','Supprime tous les trades de l\'app':'Deletes every trade in the app',
+'Lien de la feuille':'Sheet link','Ou colle le tableau ici':'Or paste the table here','Colonnes reconnues : ticker, pnl, investi, devise, plateforme, date, tags, mc_in, mc_out, ca, note.':'Recognized columns: ticker, pnl, invested, currency, platform, date, tags, mc_in, mc_out, ca, note.','Sélectionne tes cellules dans Sheets, copie, colle ici':'Select your cells in Sheets, copy, paste here','Dans Sheets : Partager, puis « Tous les utilisateurs disposant du lien » en lecture.':'In Sheets: Share, then "Anyone with the link" as viewer.','Feuille privée : partage-la par lien':'Private sheet: share it by link','Impossible de lire la feuille':'Could not read the sheet',
+'Connexion':'Connection','Adresse du wallet (publique)':'Wallet address (public)','Colle l\'adresse de ton wallet Terminal':'Paste your Terminal wallet address','Clé Helius':'Helius key','· optionnelle, pour aller plus vite':'· optional, for speed','Laisse vide pour commencer':'Leave empty to start','Historique à lire':'History to read','500 dernières transactions':'Last 500 transactions','1 000 dernières transactions':'Last 1,000 transactions','3 000 dernières transactions':'Last 3,000 transactions','10 000 dernières transactions':'Last 10,000 transactions','Synchroniser':'Sync','Resynchroniser':'Sync again','Utiliser Phantom':'Use Phantom','Déconnecter':'Disconnect','Comment faire':'How it works','Positions ouvertes':'Open positions','Pas encore synchronisé':'Not synced yet','Ouvert':'Open',
+'Connecte ton adresse : tes trades Terminal, Axiom et GMGN arrivent tout seuls.':'Connect your address: your Terminal, Axiom and GMGN trades arrive on their own.','La synchronisation fonctionne dans l\'application locale.':'Syncing works in the local app.','La synchronisation fonctionne dans l’application locale.':'Syncing works in the local app.',
+'Lecture seule. L\'adresse est publique : personne ne peut déplacer tes fonds avec. Ne colle jamais ta phrase secrète ni ta clé privée, l\'application les refuse.':'Read-only. The address is public: nobody can move your funds with it. Never paste your seed phrase or private key, the app rejects them.',
+'Copie ton adresse.':'Copy your address.','Dans Terminal : Wallet, puis copie l\'adresse. Axiom et GMGN utilisent le même wallet si tu l\'as importé.':'In Terminal: Wallet, then copy the address. Axiom and GMGN use the same wallet if you imported it.','Clé Helius : facultative.':'Helius key: optional.','Sans clé, on lit tes 300 dernières transactions (plus lent). Avec une clé gratuite (helius.dev), tout l\'historique, bien plus vite.':'Without a key, we read your last 300 transactions (slower). With a free key (helius.dev), your full history, much faster.','Synchronise.':'Sync.','Chaque achat et chaque vente est regroupé en trade, avec l\'heure et la durée.':'Every buy and sell is grouped into a trade, with time and duration.',
+'Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Tout reste sur ton ordinateur.':'Terminal, Axiom or GMGN. We rank them, compute your stats and keep your trading journal. Everything stays on your computer.','Dépose tes PNL cards.':'Drop your PNL cards.','Choisir des images':'Choose images','ou glisse-les ici':'or drag them here','Importer un CSV ou un Google Sheets':'Import a CSV or a Google Sheet','Connecter mon wallet':'Connect my wallet','Aucun trade lu pour l\'instant':'No trade read yet',
+'Les images restent sur cet ordinateur':'Images stay on this computer','Démo · données fictives':'Demo · sample data','Manuel':'Manual','Autre':'Other',
+'Dépose des images PNG ou JPG':'Drop PNG or JPG images','Enregistré':'Saved','Supprimé':'Deleted','Trade ajouté':'Trade added','Entre un ticker':'Enter a ticker','Entre un PnL':'Enter a PnL','Entre un PnL, ou investi + reçu':'Enter a PnL, or invested + received','Colle l\'adresse de ton wallet.':'Paste your wallet address.','Connexion à Helius…':'Connecting to Helius…','Reconstruction des trades…':'Rebuilding trades…','Récupération des noms de tokens…':'Fetching token names…','Connexion annulée':'Connection cancelled','Adresse récupérée (lecture seule)':'Address retrieved (read-only)','Phantom introuvable dans ce navigateur':'Phantom not found in this browser',
+'Objectifs enregistrés':'Goals saved','Objectifs effacés':'Goals cleared','CSV copié':'CSV copied','Copié : colle dans Sheets (Ctrl+V)':'Copied: paste into Sheets (Ctrl+V)','Rien à importer':'Nothing to import','Tableau vide':'Empty table','Sauvegarde impossible':'Could not save','Touche les cartes à supprimer':'Tap the cards to delete','Échec de l\'import':'Import failed','L\'import d\'images est dans l\'application locale':'Image import is in the local app','Le lien fonctionne dans l\'application locale.':'The link works in the local app.',
+'Adresse invalide. Une adresse Solana fait 32 à 44 caractères.':'Invalid address. A Solana address is 32 to 44 characters.','Ça ressemble à une phrase secrète. Ne la colle jamais ici : il faut l\'adresse publique, celle qu\'on peut partager.':'This looks like a seed phrase. Never paste it here: we need the public address, the one you can share.','Ça ressemble à une clé privée. Ne la colle jamais ici : il faut l\'adresse publique.':'This looks like a private key. Never paste it here: we need the public address.','Clé Helius refusée. Vérifie-la sur helius.dev.':'Helius key rejected. Check it on helius.dev.','Impossible de joindre Helius. Vérifie ta connexion.':'Cannot reach Helius. Check your connection.','Le serveur public a refusé la requête. Réessaie dans une minute, ou ajoute une clé Helius gratuite.':'The public server refused the request. Try again in a minute, or add a free Helius key.','Le serveur public est saturé. Réessaie dans une minute, ou ajoute une clé Helius gratuite.':'The public server is overloaded. Try again in a minute, or add a free Helius key.','Réponse inattendue de Helius.':'Unexpected response from Helius.','Erreur inattendue.':'Unexpected error.','Le serveur local ne répond pas.':'The local server is not responding.',
+'Ajouter un trade à la main':'Add a trade by hand','Démo · données fictives · v5':'Demo · sample data · v5','Les images restent sur cet ordinateur · v5':'Images stay on this computer · v5','Meilleur retour %':'Best return %','Narratif':'Narrative','Annuler':'Cancel','Saisis-les à la main dans l\'onglet Cartes, ou vérifie qu\'il s\'agit bien d\'une carte Terminal, Axiom ou GMGN (pas d\'une capture d\'écran)':'Enter them by hand in the Cards tab, or check it is really a Terminal, Axiom or GMGN card (not a screenshot)','Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.':'Check that the black start.bat window is still open, then try again.','Tesseract n\'est pas installé.':'Tesseract is not installed.','C\'est le moteur qui lit les images. Installe-le (winget install --id UB-Mannheim.TesseractOCR), puis relance start.bat.':'It is the engine that reads images. Install it (winget install --id UB-Mannheim.TesseractOCR), then restart start.bat.','Fait par':'Made by','Langue':'Language','Open source sur GitHub':'Open source on GitHub'
+};
+/* motifs : mots courts et phrases composées (ordre = priorité) */
+const EN_RE = [
+ [/^ex\. /, 'e.g. '],
+ [/^Semaine du (.+) au (.+)$/, (m,a,b)=>`Week of ${a} to ${b}`],
+ [/^Voir les (\d+) trades$/, (m,n)=>`Show all ${n} trades`],
+ [/^Capital réalisé · (\d+) trades?$/, (m,n)=>`Realized capital · ${n} trade${n==1?'':'s'}`],
+ [/^(\d+) cartes?$/, (m,n)=>`${n} card${n==1?'':'s'}`],
+ [/^(\d+) cartes? non lues?(\.?)$/, (m,n,d)=>`${n} unread card${n==1?'':'s'}${d}`],
+ [/^Supprimer (\d+)$/, (m,n)=>`Delete ${n}`],
+ [/(\d+) doublons?/g, (m,n)=>`${n} duplicate${n==1?'':'s'}`],
+ [/^(\d+) jours?( · record (\d+))?$/, (m,n,r,rec)=>`${n} day${n==1?'':'s'}${r?` · record ${rec}`:''}`],
+ [/(\d+) derniers jours tradés/, (m,n)=>`Last ${n} trading days`],
+ [/^(\d+) derniers jours$/, (m,n)=>`Last ${n} days`],
+ [/(\d+) dernières transactions/, (m,n)=>`Last ${n} transactions`],
+ [/^(\d+) jours? tradés?$/, (m,n)=>`${n} trading day${n==1?'':'s'}`],
+ [/Depuis (.+)$/, (m,d)=>`Since ${d}`],
+ [/ouvert à (\d\d:\d\d)/g, (m,t)=>`opened at ${t}`],
+ [/ · position ouverte/g, ' · open position'],
+ [/ · filtré/g, ' · filtered'],
+ [/ \(filtre actuel\)/g, ' (current filter)'],
+ [/ · \$ convertis en SOL \(≈\)/g, ' · $ converted to SOL (≈)'],
+ [/ · cartes en \$ converties en SOL \(≈\)/g, ' · $ cards converted to SOL (≈)'],
+ [/ce jour/g, 'that day'],
+ [/(\d+) gagnants?/g, (m,n)=>`${n} winner${n==1?'':'s'}`],
+ [/(\d+) perdants?/g, (m,n)=>`${n} loser${n==1?'':'s'}`],
+ [/% gagnants/g, '% winners'],
+ [/(\d+) pertes? sur (\d+) cartes/g, (m,a,b)=>`${a} loss${a==1?'':'es'} out of ${b} cards`],
+ [/Aucune perte sur (\d+) cartes/g, (m,b)=>`No losses out of ${b} cards`],
+ [/: les cartes exportées montrent surtout les gains, ces chiffres sont donc/g, ': exported cards mostly show wins, so these numbers are'],
+ [/(\d+) importés?/g, (m,n)=>`${n} imported`],
+ [/(\d+) supprimés?/g, (m,n)=>`${n} deleted`],
+ [/(\d+) ignorés?/g, (m,n)=>`${n} skipped`],
+ [/(\d+) trades? synchronisés?/g, (m,n)=>`${n} trade${n==1?'':'s'} synced`],
+ [/ · (\d+) cartes? associées?/g, (m,n)=>` · ${n} card${n==1?'':'s'} matched`],
+ [/Synchronisé le (.+?) · (\d+) trades? · (\d+) transactions lues/, (m,d,n,t)=>`Synced on ${d} · ${n} trade${n==1?'':'s'} · ${t} transactions read`],
+ [/Synchronisé le (.+?) · (\d+) trades?/, (m,d,n)=>`Synced on ${d} · ${n} trade${n==1?'':'s'}`],
+ [/Lecture des transactions… (\d+)( \(sans clé : compte 1 à 2 minutes\))?/, (m,n,k)=>`Reading transactions… ${n}${k?' (no key: allow 1 to 2 minutes)':''}`],
+ [/Helius a répondu avec une erreur \((\d+)\)\./, (m,c)=>`Helius returned an error (${c}).`],
+ [/^moy\. /, 'avg '],
+ [/(\d+) trades?$/, (m,n)=>`${n} trade${n==1?'':'s'}`],
+ [/^· (\d+) jours tradés$/, (m,n)=>`· ${n} trading days`],
+];
+function trText(s){
+  if(LANG!=='en') return s;
+  const k=s.trim(); if(!k||!/[A-Za-zÀ-ÿ]/.test(k)) return s;
+  const lead=s.slice(0,s.indexOf(k)), tail=s.slice(s.indexOf(k)+k.length);
+  if(Object.prototype.hasOwnProperty.call(EN,k)) return lead+EN[k]+tail;
+  let o=k; for(const [re,to] of EN_RE){ o=o.replace(re,to); }
+  return o===k?s:lead+o+tail;
+}
+const TR_ATTR=['placeholder','title','aria-label','alt'];
+function trDom(root){
+  if(LANG!=='en'||!root) return;
+  if(root.nodeType===3){ const t=trText(root.nodeValue); if(t!==root.nodeValue) root.nodeValue=t; return; }
+  if(root.nodeType!==1) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT); let n=w.currentNode;
+  const doEl=e=>{ if(['SCRIPT','STYLE'].includes(e.tagName)) return; TR_ATTR.forEach(a=>{ const v=e.getAttribute&&e.getAttribute(a); if(v){ const t=trText(v); if(t!==v) e.setAttribute(a,t); } }); };
+  while(n){ if(n.nodeType===3){ const p=n.parentNode; if(p&&!['SCRIPT','STYLE','TEXTAREA'].includes(p.tagName)){ const t=trText(n.nodeValue); if(t!==n.nodeValue) n.nodeValue=t; } } else doEl(n); n=w.nextNode(); }
+}
+if(LANG==='en'){
+  document.documentElement.lang='en';
+  new MutationObserver(ms=>{ for(const m of ms){ if(m.type==='characterData') trDom(m.target); else m.addedNodes.forEach(trDom); } }).observe(document.body,{childList:true,subtree:true,characterData:true});
+  document.addEventListener('DOMContentLoaded',()=>trDom(document.body));
+}
+function setLang(l){ try{ localStorage.setItem('pnl_lang',l); sessionStorage.setItem('pnl_view',S.view); }catch(e){} location.reload(); }
+
 const PLAT = {terminal:'Terminal', axiom:'Axiom', gmgn:'GMGN', import:'Import', manuel:'Manuel', wallet:'Wallet', photon:'Photon', bullx:'BullX', autre:'Autre'};
 const SETUPS = ['Snipe','Runner','Scalp','Swing','FOMO','Rug','Dev dump','Bundle'];
 const $ = id => document.getElementById(id);
@@ -432,18 +546,20 @@ const esc = v => String(v==null?'':v).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&l
 const usd = (n,sign=true) => { const a=Math.abs(n); const t=a>=1e6?(a/1e6).toFixed(2)+'M':a>=1e4?(a/1e3).toFixed(1)+'K':a.toLocaleString('en-US',{maximumFractionDigits:0}); return (sign?(n>0?'+':n<0?'−':''):'')+'$'+t; };
 const pad = n => String(n).padStart(2,'0');
 const isoDay = ms => { const d=new Date(ms); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
-const dayLabel = ms => ms?new Date(ms).toLocaleDateString('fr-FR',{day:'numeric',month:'short'}):'';
+const dayLabel = ms => ms?new Date(ms).toLocaleDateString(LOC,{day:'numeric',month:'short'}):'';
 const cap = t => t?t[0].toUpperCase()+t.slice(1):t;
-const longDay = k => cap(new Date(parseDate(k)).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}));
+const longDay = k => cap(new Date(parseDate(k)).toLocaleDateString(LOC,{weekday:'long',day:'numeric',month:'long'}));
 const pctf = n => Math.abs(n)>=1000 ? (n>0?'+':'−')+(Math.abs(n)/1000).toFixed(1)+'K %' : sgn(n,1)+' %';
 const rid = () => Math.random().toString(36).slice(2,12);
 const platName = c => PLAT[c.terminal] || (c.terminal?cap(c.terminal):'Terminal');
 const monthKey = c => { if(!c.dateMs) return 'none'; const d=new Date(c.dateMs); return d.getFullYear()+'-'+pad(d.getMonth()+1); };
-const monthLabel = k => { if(k==='none') return 'Sans date'; const [y,m]=k.split('-'); return cap(new Date(+y,+m-1,1).toLocaleDateString('fr-FR',{month:'long',year:'numeric'})); };
+const monthLabel = k => { if(k==='none') return 'Sans date'; const [y,m]=k.split('-'); return cap(new Date(+y,+m-1,1).toLocaleDateString(LOC,{month:'long',year:'numeric'})); };
 const kk = c => `${c.token}|${c.pnl}|${c.invested}`;
 const todayKey = () => isoDay(Date.now());
 const shiftDay = (k,n) => isoDay(parseDate(k)+n*86400000);
 const mondayOf = k => { const ms=parseDate(k), d=new Date(ms); return isoDay(ms-((d.getDay()+6)%7)*86400000); };
+const mcf = v => v==null?'—':v>=1e9?(v/1e9).toFixed(v>=1e10?0:1).replace(/\.0$/,'')+'B':v>=1e6?(v/1e6).toFixed(v>=1e7?0:2).replace(/\.?0+$/,'')+'M':v>=1e3?(v/1e3).toFixed(v>=1e4?0:1).replace(/\.0$/,'')+'K':String(Math.round(v));
+const hhmm = ms => { const d=new Date(ms); return pad(d.getHours())+':'+pad(d.getMinutes()); };
 const dur = s => { if(s==null) return '—'; if(s<60) return Math.max(Math.round(s),1)+' s'; const m=Math.round(s/60); if(m<60) return m+' min'; const h=Math.floor(m/60); if(h<24) return h+' h'+(m%60?' '+pad(m%60):''); const d=Math.floor(h/24); return d+' j'+(h%24?' '+(h%24)+' h':''); };
 const shortAddr = a => a?a.slice(0,4)+'…'+a.slice(-4):'';
 const tagsOf = c => Array.isArray(c.tags)?c.tags:[];
@@ -544,7 +660,7 @@ function render(o){
   if(!S.day) S.day = initDay(all);
   const tabs=[['dash','Dashboard'],['journal','Journal'],['cards','Cartes'],['wallet','Wallet']];
   const nav=`<div class="navwrap"><div class="tabs" role="tablist"><span class="ind"></span>${tabs.map(([k,l])=>`<button class="tab ${S.view===k?'on':''}" data-view="${k}" role="tab" type="button">${l}</button>`).join('')}</div></div>`;
-  const foot = `<div class="foot"><span>${IS_DEMO?'Démo · données fictives':'Les images restent sur cet ordinateur'} · v5</span><button class="link" id="csvBtn" type="button">Exporter en CSV</button></div><div class="prog" id="prog"><i></i></div>`;
+  const foot = `<div class="foot"><span>${IS_DEMO?'Démo · données fictives':'Les images restent sur cet ordinateur'} · v5</span><button class="link" id="csvBtn" type="button">Exporter en CSV</button></div><div class="credit"><span>Fait par <a href="https://x.com/Wizerolio" target="_blank" rel="noopener">Wizerolio</a></span><i></i><a href="https://github.com/c1pps/pnl-cards" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
   let body='';
   if(S.view==='wallet') body=walletView();
   else if(!all.length) body=`<div class="ph"><div><div class="eyebrow">Aucun trade lu pour l'instant</div></div></div>${unreadSec(bad)}${monthsBox(periods)}`;
@@ -648,7 +764,7 @@ function calendar(days){
     }
   }
   return `<div class="hd"><h3>Calendrier</h3><div class="cnav"><button class="ico" data-cal="-1" type="button" aria-label="Mois précédent"><svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="#f4f5f7" stroke-width="2" stroke-linecap="round"><path d="M6 1 1 6l5 5"/></svg></button><b>${esc(monthLabel(mk))}</b><button class="ico" data-cal="1" type="button" aria-label="Mois suivant"><svg width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="#f4f5f7" stroke-width="2" stroke-linecap="round"><path d="m2 1 5 5-5 5"/></svg></button></div></div>
-    <div class="cal">${['L','M','M','J','V','S','D'].map(t=>`<div class="dh">${t}</div>`).join('')}<div class="dh wh">Sem.</div>${cells}</div>
+    <div class="cal">${WD_LET.map(t=>`<div class="dh">${t}</div>`).join('')}<div class="dh wh">Sem.</div>${cells}</div>
     <div class="sub2" style="margin-top:16px">Total du mois <b class="n ${cls(mp)}">${unit(mp)}</b> · ${inMonth.length} jour${inMonth.length>1?'s':''} tradé${inMonth.length>1?'s':''}</div>`;
 }
 /* objectif du jour + séries */
@@ -678,7 +794,7 @@ function holdCard(all){
   return `<div class="card" style="--i:10"><div class="hd"><h3>Durée de détention</h3><span class="dim" style="font-size:13px">${h.length} trades</span></div><div class="facts">${row('Moyenne',avg(h))}${row('Trades gagnants',avg(w))}${row('Trades perdants',avg(l))}</div></div>`;
 }
 function weekdayBars(days){
-  const names=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'], t=Array(7).fill(0), n=Array(7).fill(0);
+  const names=WD_SHORT, t=Array(7).fill(0), n=Array(7).fill(0);
   days.forEach(d=>{ const i=(new Date(d.ms).getDay()+6)%7; t[i]+=d.pnl; n[i]+=d.list.length; });
   const mx=Math.max(...t.map(Math.abs),.0001);
   return names.map((nm,i)=>`<div class="hb" style="--i:${i}"><div class="l">${nm}</div><div class="track"><i style="width:${n[i]?Math.max(Math.abs(t[i])/mx*100,3).toFixed(1):0}%;background:${t[i]>=0?'var(--gain)':'var(--loss)'}"></i></div><div class="v n ${n[i]?cls(t[i]):'dim'}">${n[i]?unitC(t[i]):'·'}</div></div>`).join('');
@@ -727,7 +843,7 @@ function journalRows(all){
   else if(S.range==='month') l=all.filter(c=>c.dateMs&&isoDay(c.dateMs).startsWith(d.slice(0,7)));
   else l=[...all];
   const order=new Map(cards.map((c,i)=>[c,i])), {k,d:dir}=S.jsort;
-  const key={date:c=>c.dateMs||0,token:c=>(c.token||'').toLowerCase(),plat:c=>platName(c),inv:invEq,pnl:val,ret:retOf,hold:c=>c.holdSec??-1}[k]||(c=>0);
+  const key={date:c=>c.dateMs||0,token:c=>(c.token||'').toLowerCase(),plat:c=>platName(c),inv:invEq,pnl:val,ret:retOf,hold:c=>c.holdSec??-1,mc:c=>(c.mcIn&&c.mcOut)?c.mcOut/c.mcIn:-1}[k]||(c=>0);
   return l.sort((a,b)=>{ const x=key(a),y=key(b); const r=(typeof x==='string')?x.localeCompare(y):x-y; return (r*dir)||(order.get(a)-order.get(b)); });
 }
 function rangeTitle(){
@@ -744,19 +860,20 @@ function journalView(all){
   const showDate=S.range!=='day', arrow=k=>S.jsort.k===k?`<span class="ar">${S.jsort.d>0?'↑':'↓'}</span>`:'';
   const th=(k,l,c='')=>`<th class="${c} ${S.jsort.k===k?'on':''}" data-sort="${k}">${l}${arrow(k)}</th>`;
   const rng=[['day','Jour'],['week','Semaine'],['month','Mois'],['all','Tout']];
-  const inv=sum(rows.map(invEq)), hasHold=rows.some(c=>c.holdSec!=null);
+  const inv=sum(rows.map(invEq)), hasHold=rows.some(c=>c.holdSec!=null), hasMc=rows.some(c=>c.mcIn||c.mcOut);
   const trs=rows.map((c,i)=>{ const r=retOf(c); return `<tr class="r" data-id="${c.id}" style="--i:${Math.min(i,14)}">
       ${showDate?`<td class="dim">${esc(dayLabel(c.dateMs)||'—')}</td>`:''}
       <td><div class="tk">${thumb(c)}<span>${esc(c.token||'?')}</span>${review(c)?'<span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--warn)"></span>':''}${c.open?'<span class="opn">Ouvert</span>':''}</div></td>
       <td class="dim hide-m">${esc(platName(c))}</td>
+      ${hasMc?`<td class="num n hide-m">${(c.mcIn||c.mcOut)?`<div class="mcc"><span>${c.mcIn?'$'+mcf(c.mcIn):'—'} → ${c.mcOut?'$'+mcf(c.mcOut):'—'}</span>${(c.mcIn&&c.mcOut)?`<small>×${(c.mcOut/c.mcIn).toFixed(c.mcOut/c.mcIn>=10?0:2)}</small>`:''}</div>`:'—'}</td>`:''}
       ${hasHold?`<td class="num n dim hide-m">${c.holdSec!=null?dur(c.holdSec):'—'}</td>`:''}
       <td class="num n">${c.invested==null?'<span class="dim">—</span>':esc(money(c,c.invested,c.invested>=1?2:3))}</td>
       <td class="num n ${cls(c.pnl)}" style="font-weight:800"><span class="pv">${fmt(c)}${isUsd(c)?'':sol(false)}</span></td>
       <td class="num n hide-m ${isFinite(r)?cls(r):'dim'}">${isFinite(r)?pctf(r):'—'}</td>
       <td class="hide-m">${tagHtml(c)||'<span class="dim">—</span>'}</td></tr>`; }).join('');
-  const table = rows.length?`<div class="card" style="padding:0;overflow:hidden;--i:3"><div class="tw"><table class="tbl"><thead><tr>${showDate?th('date','Date'):''}${th('token','Ticker')}${th('plat','Plateforme','hide-m')}${hasHold?th('hold','Durée','num hide-m'):''}${th('inv','Investi','num')}${th('pnl','PnL','num')}${th('ret','Retour','num hide-m')}<th class="hide-m" style="cursor:default">Setup</th></tr></thead>
+  const table = rows.length?`<div class="card" style="padding:0;overflow:hidden;--i:3"><div class="tw"><table class="tbl"><thead><tr>${showDate?th('date','Date'):''}${th('token','Ticker')}${th('plat','Plateforme','hide-m')}${hasMc?th('mc','MC entrée → sortie','num hide-m'):''}${hasHold?th('hold','Durée','num hide-m'):''}${th('inv','Investi','num')}${th('pnl','PnL','num')}${th('ret','Retour','num hide-m')}<th class="hide-m" style="cursor:default">Setup</th></tr></thead>
       <tbody>${trs}</tbody>
-      <tfoot><tr>${showDate?'<td></td>':''}<td>${rows.length} trade${rows.length>1?'s':''}</td><td class="hide-m"></td>${hasHold?'<td class="hide-m"></td>':''}<td class="num n">${unit(inv).replace('+','')}</td><td class="num n ${cls(total)}"><span class="pv">${unit(total)}${mode?sol(false):''}</span></td><td class="num n dim hide-m">${Math.round(wins/rows.length*100)} %</td><td class="hide-m"></td></tr></tfoot></table></div></div>`
+      <tfoot><tr>${showDate?'<td></td>':''}<td>${rows.length} trade${rows.length>1?'s':''}</td><td class="hide-m"></td>${hasMc?'<td class="hide-m"></td>':''}${hasHold?'<td class="hide-m"></td>':''}<td class="num n">${unit(inv).replace('+','')}</td><td class="num n ${cls(total)}"><span class="pv">${unit(total)}${mode?sol(false):''}</span></td><td class="num n dim hide-m">${Math.round(wins/rows.length*100)} %</td><td class="hide-m"></td></tr></tfoot></table></div></div>`
     :`<div class="card" style="--i:3"><div class="empty">Aucun trade ${S.range==='day'?'ce jour-là':'sur cette période'}.<br><button class="link" id="emptyAdd" type="button" style="margin-top:8px">Ajouter un trade</button></div></div>`;
   const dsel = S.range!=='all';
   return `
@@ -777,7 +894,7 @@ function journalView(all){
     <div class="kpi" style="--i:3"><div class="k">Mise totale</div><div class="v n">${rows.length?unit(inv).replace('+',''):'—'}</div><div class="d">${rows.length?'moy. '+unit(inv/rows.length).replace('+',''):'&nbsp;'}</div></div>
   </div>
   <div class="card" style="margin:16px 0;--i:2"><div class="hd" style="margin-bottom:12px"><h3>Ajout rapide</h3><span class="dim" style="font-size:13px">${esc(longDay(S.day))}</span></div>
-    <div class="qa"><input id="qa_t" placeholder="Ticker" autocomplete="off"><input id="qa_i" placeholder="Investi" inputmode="decimal" autocomplete="off"><input id="qa_p" placeholder="PnL (ex. +0.8)" inputmode="decimal" autocomplete="off"><select id="qa_c"><option>SOL</option><option>USD</option></select><button class="pill" id="qaBtn" type="button">Ajouter</button></div></div>
+    <div class="qa"><input id="qa_t" placeholder="Ticker" autocomplete="off"><input id="qa_i" placeholder="Investi" inputmode="decimal" autocomplete="off"><input id="qa_p" placeholder="PnL (ex. +0.8)" inputmode="decimal" autocomplete="off"><select id="qa_c"><option>SOL</option><option>USD</option></select><button class="pill" id="qaBtn" type="button">Ajouter</button></div><div class="qa2"><button class="link" id="qaMore" type="button" style="padding:0">Ajouter avec plus de détails : MC, heure, reçu, tags, note</button></div></div>
   ${table}`;
 }
 function quickAdd(){
@@ -863,7 +980,7 @@ const walletErr = c => WERR[c] || (String(c).startsWith('http_')?'Helius a répo
 const wCount = () => cards.filter(c=>c.src==='wallet').length;
 function walletView(){
   const linked=!!W.address, n=wCount();
-  const last=W.last?new Date(W.last).toLocaleString('fr-FR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+  const last=W.last?new Date(W.last).toLocaleString(LOC,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
   const hold=(W.holdings||[]);
   const st=linked&&W.last?`<div class="wst" id="w_st"><span class="dotl"></span><span>Synchronisé le ${esc(last)} · ${n} trade${n>1?'s':''} · ${W.stats?W.stats.txs+' transactions lues':''}</span></div>`:`<div class="wst idle" id="w_st"><span class="dotl"></span><span>Pas encore synchronisé</span></div>`;
   return `
@@ -996,6 +1113,7 @@ function bind(){
   if(g('pickDay')) g('pickDay').onclick=()=>{ const i=g('dateInp'); try{ i.showPicker(); }catch(e){ i.focus(); i.click(); } };
   if(g('dateInp')) g('dateInp').onchange=e=>{ if(e.target.value){ S.day=e.target.value; render({soft:true}); } };
   on('th[data-sort]',h=>h.onclick=()=>{ const k=h.dataset.sort; S.jsort=S.jsort.k===k?{k,d:-S.jsort.d}:{k,d:(k==='token'||k==='plat'||k==='date')?1:-1}; render({soft:true}); });
+  if(g('qaMore')) g('qaMore').onclick=()=>openSheet('new',{token:$('qa_t').value.trim()||undefined,invested:num($('qa_i').value)??undefined,pnl:num($('qa_p').value)??undefined,currency:$('qa_c').value==='USD'?'USD':'SOL'});
   if(g('qaBtn')){ g('qaBtn').onclick=quickAdd; ['qa_t','qa_i','qa_p'].forEach(id=>g(id).onkeydown=e=>{ if(e.key==='Enter') quickAdd(); }); }
   if(g('emptyAdd')) g('emptyAdd').onclick=()=>openSheet('new');
 }
@@ -1011,16 +1129,17 @@ function removeCards(ids){
 
 /* ---------- fiche d'un trade (voir / corriger / ajouter) ---------- */
 const PLAT_OPTS = ['terminal','axiom','gmgn','photon','bullx','manuel','autre'];
-function openSheet(id){
+function openSheet(id,pre){
   const isNew = id==='new';
-  const c = isNew ? {id:rid(),type:'trade',flags:[],currency:'SOL',terminal:'manuel',dateMs:parseDate(S.day||todayKey()),tags:[]} : cards.find(x=>x.id===id);
+  const c = isNew ? Object.assign({id:rid(),type:'trade',flags:[],currency:'SOL',terminal:'manuel',dateMs:parseDate(S.day||todayKey()),tags:[]},pre||{}) : cards.find(x=>x.id===id);
   if(!c) return;
   const U=isUsd(c), bad=!isNew&&typeof c.pnl!=='number';
   const ret=(c.invested&&c.pnl!=null)?c.pnl/c.invested*100:c.pct;
   const approx=(U&&!bad&&!isNew&&solMode())?`≈ ${sgn(eq(c),2)} SOL`:'';
   const posLabel=(c.positionMeaning==='total_value')?'Valeur':'Position';
   const mult=(c.mcIn&&c.mcOut)?c.mcOut/c.mcIn:null;
-  const details=[c.mcIn?['MC entrée','$'+usd(c.mcIn,false).slice(1)]:null,c.mcOut?['MC sortie','$'+usd(c.mcOut,false).slice(1)]:null,mult?['Multiple',mult.toFixed(2)+'x']:null,c.holdSec!=null?['Durée',dur(c.holdSec)+(c.open?' · position ouverte':'')]:null,c.ca?['Contrat',esc(c.ca.slice(0,6)+'…'+c.ca.slice(-4))]:null].filter(Boolean);
+  const rec=(c.invested!=null&&c.pnl!=null)?c.invested+c.pnl:null;
+  const details=[(c.timed||c.src==='wallet')&&c.dateMs?['Heure',hhmm(c.dateMs)+(c.openedMs?' · ouvert à '+hhmm(c.openedMs):'')]:null,c.mcIn?['MC entrée','$'+mcf(c.mcIn)]:null,c.mcOut?['MC sortie','$'+mcf(c.mcOut)]:null,mult?['Multiple (MC)','×'+mult.toFixed(2)]:null,rec!=null&&!bad?['Montant reçu',money(c,rec,rec>=1?2:4)+(U?'':' SOL')]:null,c.holdSec!=null?['Durée',dur(c.holdSec)+(c.open?' · position ouverte':'')]:null,c.ca?['Contrat',esc(c.ca.slice(0,6)+'…'+c.ca.slice(-4))]:null].filter(Boolean);
   const opts=[...new Set(PLAT_OPTS.concat(c.terminal||[]))];
   const allTags=[...new Set(SETUPS.concat(trades().flatMap(tagsOf)))];
   const view = isNew?'':`
@@ -1046,11 +1165,15 @@ function openSheet(id){
       <label for="e_t">Ticker</label><input id="e_t" value="${esc(c.token)}" autocomplete="off">
       <div class="f2"><div><label for="e_c">Devise</label><select id="e_c"><option value="SOL"${U?'':' selected'}>SOL</option><option value="USD"${U?' selected':''}>Dollars</option></select></div>
       <div><label for="e_s">Plateforme</label><select id="e_s">${opts.map(o=>`<option value="${esc(o)}"${o===c.terminal?' selected':''}>${esc(PLAT[o]||cap(o))}</option>`).join('')}</select></div></div>
-      <div class="f2"><div><label for="e_i">Investi</label><input id="e_i" inputmode="decimal" value="${c.invested??''}"></div><div><label for="e_p">PnL</label><input id="e_p" inputmode="decimal" value="${c.pnl??''}" placeholder="+0.85"></div></div>
-      <label for="e_d">Date du trade</label><input id="e_d" type="date" value="${c.dateMs?isoDay(c.dateMs):''}">
+      <div class="f2"><div><label for="e_d">Date</label><input id="e_d" type="date" value="${c.dateMs?isoDay(c.dateMs):''}"></div><div><label for="e_h">Heure (optionnel)</label><input id="e_h" type="time" value="${(c.timed||c.src==='wallet')&&c.dateMs?hhmm(c.dateMs):''}"></div></div>
+      <div class="fgrp">Entrée et sortie</div>
+      <div class="f2"><div><label for="e_mi">MC entrée ($)</label><input id="e_mi" inputmode="decimal" value="${c.mcIn??''}" placeholder="40K" autocomplete="off"></div><div><label for="e_mo">MC sortie ($)</label><input id="e_mo" inputmode="decimal" value="${c.mcOut??''}" placeholder="1.2M" autocomplete="off"></div></div>
+      <div class="fgrp">Montants</div>
+      <div class="f2"><div><label for="e_i">Investi</label><input id="e_i" inputmode="decimal" value="${c.invested??''}" placeholder="1.5" autocomplete="off"></div><div><label for="e_r">Reçu à la vente</label><input id="e_r" inputmode="decimal" value="${rec!=null&&!bad?+rec.toFixed(4):''}" placeholder="4.2" autocomplete="off"></div></div>
+      <label for="e_p">Bénéfice (PnL)</label><input id="e_p" inputmode="decimal" value="${c.pnl??''}" placeholder="+0.85" autocomplete="off">
+      <div class="calc" id="e_calc"></div>
       <label for="e_tags">Setup / tags</label><input id="e_tags" value="${esc(tagsOf(c).join(', '))}" placeholder="Snipe, FOMO…" autocomplete="off">
       <div id="e_chips" style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"></div>
-      <div class="f2"><div><label for="e_mi">MC entrée ($)</label><input id="e_mi" inputmode="decimal" value="${c.mcIn??''}" placeholder="40K"></div><div><label for="e_mo">MC sortie ($)</label><input id="e_mo" inputmode="decimal" value="${c.mcOut??''}" placeholder="1.2M"></div></div>
       <label for="e_ca">Adresse du contrat (optionnel)</label><input id="e_ca" value="${esc(c.ca)}" autocomplete="off" spellcheck="false">
       <label for="e_n">Note</label><textarea id="e_n" placeholder="Pourquoi tu es entré, ce que tu referais…">${esc(c.note)}</textarea>
     </div>
@@ -1062,15 +1185,32 @@ function openSheet(id){
     $('e_chips').innerHTML=allTags.map(t=>`<span class="tagp pick ${cur.includes(t.toLowerCase())?'on':''}" data-t="${esc(t)}">${esc(t)}</span>`).join('');
     $('e_chips').querySelectorAll('.pick').forEach(p=>p.onclick=()=>{ const list=$('e_tags').value.split(',').map(s=>s.trim()).filter(Boolean), t=p.dataset.t, i=list.findIndex(x=>x.toLowerCase()===t.toLowerCase()); if(i>=0) list.splice(i,1); else list.push(t); $('e_tags').value=list.join(', '); chips(); }); };
   chips(); $('e_tags').oninput=chips;
+  /* calculs liés : Investi, Reçu, PnL, MC entrée / sortie */
+  let auto=false; const U_=()=>$('e_c').value==='USD', dp=()=>U_()?2:4;
+  const setV=(id,v)=>{ $(id).value=(v==null||!isFinite(v))?'':String(+(+v).toFixed(dp())); };
+  const calc=()=>{
+    const i=num($('e_i').value), rv=num($('e_r').value), p=num($('e_p').value), mi=num($('e_mi').value), mo=num($('e_mo').value);
+    const mult=(mi&&mo)?mo/mi:null; const L=[];
+    if(mult) L.push('Multiple MC <b>×'+mult.toFixed(2)+'</b>');
+    if(i&&p!=null) L.push('Retour <b class="'+cls(p)+'">'+pctf(p/i*100)+'</b>');
+    if(auto&&p!=null) L.push('<span class="dim">PnL estimé sur le multiple de MC, sans les frais</span>');
+    $('e_calc').innerHTML=L.join(' · ');
+  };
+  const fromMc=()=>{ const i=num($('e_i').value), mi=num($('e_mi').value), mo=num($('e_mo').value); if(i&&mi&&mo&&(auto||(!$('e_p').value&&!$('e_r').value))){ auto=true; const p=i*(mo/mi-1); setV('e_p',p); setV('e_r',i+p); } };
+  $('e_p').oninput=()=>{ auto=false; const i=num($('e_i').value), p=num($('e_p').value); if(i!=null&&p!=null) setV('e_r',i+p); calc(); };
+  $('e_r').oninput=()=>{ auto=false; const i=num($('e_i').value), rv=num($('e_r').value); if(i!=null&&rv!=null) setV('e_p',rv-i); calc(); };
+  $('e_i').oninput=()=>{ const i=num($('e_i').value); if(auto){ fromMc(); } else if(i!=null&&num($('e_p').value)!=null){ setV('e_r',i+num($('e_p').value)); } else if(i!=null&&num($('e_r').value)!=null){ setV('e_p',num($('e_r').value)-i); } else fromMc(); calc(); };
+  $('e_mi').oninput=$('e_mo').oninput=()=>{ fromMc(); calc(); };
+  calc();
   const openEdit=()=>{ $('edit').style.display='block'; $('ed').style.display='none'; $('ok').style.display='block'; };
   $('ed').onclick=openEdit; if(bad||isNew) openEdit();
   if(isNew) setTimeout(()=>{ const t=$('e_t'); if(t) t.focus(); },350);
   if(!isNew) $('del').onclick=()=>{ const b=$('del'); if(!b.classList.contains('sure')){ b.classList.add('sure'); b.textContent='Confirmer'; setTimeout(()=>{ if(b.isConnected){ b.classList.remove('sure'); b.textContent='Supprimer'; } },3000); return; } closeSheet(); removeCards(new Set([c.id])); toast('Supprimé'); };
   $('ok').onclick=()=>{
-    const p=num($('e_p').value); if(p==null){ toast('Entre un PnL'); return; }
+    const p=num($('e_p').value); if(p==null){ toast('Entre un PnL, ou investi + reçu'); return; }
     const tk=$('e_t').value.trim(); if(isNew&&!tk){ toast('Entre un ticker'); return; }
     c.token=tk||c.token; c.currency=$('e_c').value; c.terminal=$('e_s').value; c.pnl=p; c.invested=num($('e_i').value);
-    const d=$('e_d').value; if(d) c.dateMs=parseDate(d);
+    const d=$('e_d').value, h=$('e_h').value; if(d){ const base=parseDate(d); if(h){ const [hh,mm]=h.split(':').map(Number); c.dateMs=base-12*3600000+(hh*60+mm)*60000; c.timed=true; } else if(!c.dateMs||isoDay(c.dateMs)!==d){ c.dateMs=base; delete c.timed; } }
     c.tags=[...new Set($('e_tags').value.split(',').map(s=>s.trim()).filter(Boolean))];
     c.mcIn=num($('e_mi').value)||undefined; c.mcOut=num($('e_mo').value)||undefined; c.ca=$('e_ca').value.trim()||undefined;
     c.note=$('e_n').value.trim()||undefined; c.edited=true; delete c.error;
@@ -1256,6 +1396,8 @@ async function handleFiles(list){
 let tt; function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>t.classList.remove('on'),2600); }
 
 $('addBtn').onclick=openAdd;
+$('lFr').classList.toggle('on',LANG==='fr'); $('lEn').classList.toggle('on',LANG==='en');
+$('lFr').onclick=()=>{ if(LANG!=='fr') setLang('fr'); }; $('lEn').onclick=()=>{ if(LANG!=='en') setLang('en'); };
 $('menuBtn').onclick=openMenu;
 $('file').onchange=e=>{ handleFiles(e.target.files); e.target.value=''; };
 $('csv').onchange=e=>{ const f=e.target.files[0]; e.target.value=''; if(f) f.text().then(importTable); };
@@ -1265,7 +1407,8 @@ window.addEventListener('drop',e=>{e.preventDefault(); const d=$('drop'); if(d) 
 $('shade').onclick=closeSheet; document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
 
 if(!IS_DEMO) fetch('/api/cards').then(r=>r.json()).then(d=>{ cards=d; render(); }).catch(()=>{});
-render();
+try{ const v=sessionStorage.getItem('pnl_view'); if(v){ S.view=v; sessionStorage.removeItem('pnl_view'); } }catch(e){}
+render(); trDom(document.body);
 </script>
 </body>
 </html>

@@ -2,14 +2,16 @@
 
 Journal de trading memecoins **local et open source**. Glisse tes PNL cards (Terminal, Axiom, GMGN), ou connecte ton wallet Solana : tout est lu, classé et analysé sur ton ordinateur.
 
-**Démo : [pnl.tradeblanks.com](https://pnl.tradeblanks.com)** (données fictives)
+**Démo : [pnl.tradeblanks.com](https://pnl.tradeblanks.com)** (données fictives) · Interface en français et en anglais (bouton FR / EN).
+
+> **English:** local, open-source memecoin trading journal. Drop Terminal / Axiom / GMGN PnL cards (OCR) or connect your public Solana wallet address; get a dashboard, journal with entry/exit market cap, holding time and stats. Everything stays on your machine. Run `start.bat` (Windows) or `./start.sh`, and switch the UI to English with the EN button.
 
 ## Ce que ça fait
 
 - **Lecture des cartes** : l'OCR lit les images PNL de Terminal, Axiom et GMGN (token, PnL, investi, %), avec des contrôles de cohérence.
 - **Wallet** : colle l'adresse publique de ton wallet, l'app reconstruit chaque trade (achats, ventes, heure, durée de détention). Clé Helius facultative.
 - **Dashboard** : courbe de capital, calendrier, objectif du jour, résultat par jour / semaine / mois / plateforme, durée de détention.
-- **Journal** : tous les trades d'un jour ou d'une période, avec tags, notes, market cap d'entrée et de sortie.
+- **Journal** : tous les trades d'un jour ou d'une période, avec tags, notes, market cap d'entrée et de sortie, montant investi et reçu, heure, multiple et bénéfice calculés automatiquement.
 - **Import / export** : CSV et Google Sheets.
 - **Tes données restent chez toi** : images et trades sont stockés dans le dossier `data/`.
 
