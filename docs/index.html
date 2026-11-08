@@ -660,7 +660,7 @@ function render(o){
   if(!S.day) S.day = initDay(all);
   const tabs=[['dash','Dashboard'],['journal','Journal'],['cards','Cartes'],['wallet','Wallet']];
   const nav=`<div class="navwrap"><div class="tabs" role="tablist"><span class="ind"></span>${tabs.map(([k,l])=>`<button class="tab ${S.view===k?'on':''}" data-view="${k}" role="tab" type="button">${l}</button>`).join('')}</div></div>`;
-  const foot = `<div class="foot"><span>${IS_DEMO?'Démo · données fictives':'Les images restent sur cet ordinateur'} · v5</span><button class="link" id="csvBtn" type="button">Exporter en CSV</button></div><div class="credit"><span>Fait par <a href="https://x.com/Wizerolio" target="_blank" rel="noopener">Wizerolio</a></span><i></i><a href="https://github.com/c1pps/pnl-cards" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
+  const foot = `<div class="foot"><span>${IS_DEMO?'Démo · données fictives':'Les images restent sur cet ordinateur'} · v5</span><button class="link" id="csvBtn" type="button">Exporter en CSV</button></div><div class="credit"><span>Fait par <a href="https://x.com/wthejulio" target="_blank" rel="noopener">Wizerolio</a></span><i></i><a href="https://github.com/c1pps/pnl-cards" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
   let body='';
   if(S.view==='wallet') body=walletView();
   else if(!all.length) body=`<div class="ph"><div><div class="eyebrow">Aucun trade lu pour l'instant</div></div></div>${unreadSec(bad)}${monthsBox(periods)}`;
