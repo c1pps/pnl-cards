@@ -657,9 +657,9 @@ function render(o){
   if(!all.length && !bad.length && !periods.length && S.view!=='wallet'){
     if(WEB){
       main.innerHTML=`<section class="start"><h1>Ton journal de trading memecoins.</h1><p>Ajoute tes trades à la main ou importe un CSV / Google Sheets : stats, calendrier et courbe de capital se font tout seuls. Tes données restent dans ce navigateur. Pour lire tes PNL cards en image et connecter ton wallet, télécharge l'application locale.</p>${banner}
-      <div style="display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap"><button class="pill" id="emptyTrade" type="button">Ajouter un trade</button><button class="chip" id="emptyMenu" type="button" style="height:44px;display:inline-flex;align-items:center">Importer un CSV ou un Google Sheets</button></div>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap"><button class="pill" id="emptyTrade" type="button">Ajouter un trade</button></div>
       <div style="margin-top:20px"><a class="link" href="${GH}" target="_blank" rel="noopener">Télécharger l'application locale</a></div></section><div class="credit"><span>Fait par <a href="https://x.com/wthejulio" target="_blank" rel="noopener">wthejulio</a></span><i></i><a href="${GH}" target="_blank" rel="noopener">Open source sur GitHub</a></div><div class="prog" id="prog"><i></i></div>`;
-      $('emptyMenu').onclick=openAdd; $('emptyTrade').onclick=()=>openSheet('new'); return;
+      $('emptyTrade').onclick=openAdd; return;
     }
     main.innerHTML=`<section class="start"><h1>Dépose tes PNL cards.</h1><p>Terminal, Axiom ou GMGN. On les classe, on calcule tes stats et on tient ton journal de trading. Tout reste sur ton ordinateur.</p>${banner}
       <div class="drop" id="drop" role="button" tabindex="0"><b>Choisir des images</b><span>ou glisse-les ici</span><div class="prog" id="prog"><i></i></div></div>
