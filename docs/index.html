@@ -451,84 +451,33 @@ textarea.ro{width:100%;height:220px;background:var(--s1);border:1px solid var(--
 .lb .x2{top:14px;right:14px;font-size:16px}
 .lb .ct{position:absolute;top:24px;left:50%;transform:translateX(-50%);color:var(--mute);font-weight:700;font-size:13px}
 @media(max-width:640px){.lb .nv{top:auto!important;bottom:22px;width:48px;height:48px}.lb .nv.p{left:18px}.lb .nv.q{right:18px}.lb .cap .v{font-size:22px}}
-/* ---- partage : page publique ---- */
-html.share,html.share body{overflow-x:hidden;background:#e8e5dd}
-html.share body>*:not(#sh):not(script){display:none!important}
-html.share body::before{display:none}
-#sh{--wall:#e8e5dd;--ink:#141412;--mute:#77736a;--hair:rgba(20,20,18,.16);--gn:#0b7a43;--ls:#d23a1c;--acid:#d9ff45;min-height:100vh;background:var(--wall);color:var(--ink);font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
-#sh .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase}
-#sh .wrap{max-width:1240px;margin:0 auto;padding:0 clamp(16px,4vw,40px) 70px}
-#sh .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 0;border-bottom:1px solid var(--ink)}
-#sh .top a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);padding-bottom:1px}
-#sh .top a:hover{background:var(--ink);color:var(--wall)}
-#sh .kick{margin-top:clamp(22px,4vw,44px);color:var(--mute)}
-#sh h1{margin:clamp(10px,2vw,22px) 0 clamp(22px,3.4vw,40px);font-size:120px;line-height:.84;font-weight:900;letter-spacing:-.055em;text-transform:uppercase;white-space:nowrap}
-#sh .facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
-@media(min-width:760px){#sh .facts{grid-template-columns:repeat(4,minmax(0,1fr))}}
-#sh .facts>div{padding:15px 14px 18px 0;border-bottom:1px solid var(--hair)}
-#sh .facts>div:nth-child(2n){padding-left:14px;border-left:1px solid var(--hair)}
-@media(min-width:760px){#sh .facts>div{border-bottom:0;padding-left:14px;border-left:1px solid var(--hair)}#sh .facts>div:first-child{padding-left:0;border-left:0}}
-#sh .facts>div:nth-last-child(-n+2){border-bottom:0}
-#sh .facts small{display:block;margin-bottom:9px;color:var(--mute)}
-#sh .facts b{display:flex;align-items:center;flex-wrap:wrap;gap:.1em .25em;font-size:clamp(24px,3.6vw,46px);font-weight:800;letter-spacing:-.04em;line-height:1.02;overflow-wrap:anywhere}
-#sh .facts b .solm{width:.58em;height:.58em;filter:invert(1)}
-#sh .facts .g{color:var(--gn)}#sh .facts .l{color:var(--ls)}
-#sh h2{display:flex;gap:14px;align-items:baseline;margin:clamp(46px,8vw,84px) 0 clamp(16px,2.4vw,26px);padding-top:12px;border-top:1px solid var(--ink);font-weight:500;color:var(--ink)}
-#sh h2 i{font-style:normal;color:var(--mute)}
-#sh .pod{display:grid;grid-template-columns:1fr;gap:34px 22px}
-@media(min-width:760px){#sh .pod{grid-template-columns:repeat(3,minmax(0,1fr))}}
-#sh .rom{font-size:clamp(34px,5vw,60px);font-weight:900;letter-spacing:-.05em;line-height:1;margin-bottom:10px}
-#sh .ctl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:clamp(20px,3vw,30px)}
-#sh .ctl .sp{flex:1}
-#sh .ctl button{font:inherit;cursor:pointer;background:transparent;color:var(--ink);border:1px solid var(--ink);border-radius:0;padding:8px 12px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase}
-#sh .ctl button.on{background:var(--ink);color:var(--wall)}
-#sh .ctl button:not(.on):hover{background:rgba(20,20,18,.08)}
-#sh .wall{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(22px,3.4vw,40px) clamp(12px,2vw,24px)}
-@media(min-width:760px){#sh .wall{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(min-width:1100px){#sh .wall{grid-template-columns:repeat(4,minmax(0,1fr))}}
-#sh .pr{margin:0;cursor:pointer;outline:none;opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
-#sh .pr.in{opacity:1;transform:none}
-#sh .fr{position:relative;aspect-ratio:3/2;background:var(--ink);overflow:hidden;box-shadow:0 1px 1px rgba(20,20,18,.18),0 14px 22px -16px rgba(20,20,18,.6);transition:transform .25s ease,box-shadow .25s ease}
-#sh .pr:hover .fr,#sh .pr:focus-visible .fr{transform:translateY(-4px);box-shadow:0 1px 1px rgba(20,20,18,.2),0 22px 30px -16px rgba(20,20,18,.7)}
-#sh .pr:focus-visible .fr{outline:2px solid var(--ink);outline-offset:3px}
-#sh .fr img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-#sh .ph{position:absolute;inset:0;padding:clamp(10px,2.4vw,18px);display:flex;flex-direction:column;justify-content:space-between;color:var(--wall)}
-#sh .ph b{font-size:clamp(20px,4.6vw,38px);font-weight:900;letter-spacing:-.04em;text-transform:uppercase;line-height:.9;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#sh .ph i{font-style:normal;font-weight:800;font-size:clamp(18px,4vw,32px);letter-spacing:-.03em;color:var(--acid)}
-#sh .l .ph i{color:#ff6a4d}
-#sh figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:10px}
-#sh figcaption .a{min-width:0}
-#sh figcaption b{display:block;font-weight:800;font-size:15px;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#sh figcaption span.mono{color:var(--mute);font-size:10.5px}
-#sh figcaption .v{font-weight:800;font-size:15px;letter-spacing:-.02em;white-space:nowrap}
-#sh .g .v{color:var(--gn)}#sh .l .v{color:var(--ls)}
-#sh .cta{margin-top:clamp(56px,9vw,100px);background:var(--ink);color:var(--wall);padding:clamp(28px,6vw,64px) clamp(20px,4vw,48px)}
-#sh .cta h3{margin:0;font-size:clamp(40px,10vw,128px);line-height:.86;font-weight:900;letter-spacing:-.055em;text-transform:uppercase}
-#sh .cta p{margin:18px 0 26px;max-width:520px;color:rgba(232,229,221,.7);font-size:15px;line-height:1.5}
-#sh .cta a{display:inline-block;background:var(--acid);color:var(--ink);text-decoration:none;padding:14px 22px;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12px;letter-spacing:.09em;text-transform:uppercase;font-weight:700}
-#sh .cta a:hover{background:#fff}
-#sh .cr{margin-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--mute)}
-#sh .cr a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink)}
-#sh .shlb{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;background:rgba(20,20,18,.96);opacity:0;transition:opacity .22s}
-#sh .shlb.on{opacity:1}
-#sh .shlb figure{margin:0;width:min(1000px,92vw);color:var(--wall)}
-#sh .shlb .fr{aspect-ratio:3/2;max-height:74vh;margin:0 auto;box-shadow:none;background:#000}
-#sh .shlb figcaption b{font-size:22px}#sh .shlb figcaption .v{font-size:22px}
-#sh .shlb figcaption span.mono{color:rgba(232,229,221,.55)}
-#sh .shlb .g .v{color:var(--acid)}#sh .shlb .l .v{color:#ff6a4d}
-#sh .shlb .ph b{font-size:clamp(34px,8vw,84px)}#sh .shlb .ph i{font-size:clamp(28px,6vw,64px)}
-#sh .shlb button{position:absolute;width:46px;height:46px;border:1px solid rgba(232,229,221,.5);background:transparent;color:var(--wall);font-family:ui-monospace,Menlo,monospace;font-size:20px;cursor:pointer;border-radius:0}
-#sh .shlb button:hover{background:var(--wall);color:var(--ink)}
-#sh .shlb .p{left:max(12px,2.5vw);top:50%}#sh .shlb .q{right:max(12px,2.5vw);top:50%}#sh .shlb .x{top:16px;right:16px}
-#sh .shlb .ct{position:absolute;top:26px;left:20px;color:rgba(232,229,221,.55)}
-@media(max-width:640px){#sh .shlb .p,#sh .shlb .q{top:auto;bottom:22px}}
+/* ---- partage : page publique (même système que l'app) ---- */
+html.share body>*:not(#sh):not(#lb):not(script){display:none!important}
+#sh.page{padding-bottom:72px}
+#sh .hero{padding:34px 0 4px}
+#sh .hero small{display:block;color:var(--mute);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase}
+#sh .hero h1{margin:10px 0 0;font-size:clamp(40px,9.5vw,92px);line-height:1;font-weight:800;letter-spacing:-.045em;overflow-wrap:anywhere}
+#sh .kpis{margin-top:30px}
+#sh .kpi .v{white-space:normal;flex-wrap:wrap}
+#sh .gal.big{grid-template-columns:1fr}
+@media(min-width:760px){#sh .gal.big{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+#sh .rk{position:absolute;top:10px;left:10px;z-index:2;min-width:30px;height:26px;padding:0 10px;border-radius:999px;background:rgba(7,8,11,.72);border:1px solid var(--line2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+#sh .gt{animation:rise .55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*40ms)}
+#sh .chips .sp{flex:1}
+#sh .cta{margin-top:56px;padding:32px;border:1px solid var(--line2);border-radius:var(--r);background:radial-gradient(520px 220px at 0 0,rgba(95,227,176,.12),transparent 70%),var(--s1);display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+#sh .cta h3{margin:0;font-size:24px;font-weight:800;letter-spacing:-.03em}
+#sh .cta p{margin:6px 0 0;color:var(--mute);font-size:15px;max-width:480px}
+#sh .cta .pill{text-decoration:none;height:44px}
+#sh .cr{margin-top:28px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--mute);font-size:13px;font-weight:600}
+#sh .cr a{color:var(--text);text-decoration:none;border-bottom:1px solid var(--line2)}
+#sh .cr a:hover{border-color:var(--text)}
+#sh a.pill{color:#0a0b0e;text-decoration:none}
 .sha{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .sha .pill,.sha .chip{height:44px;display:inline-flex;align-items:center}
 .shi{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--s1);border:1px solid var(--line);color:var(--mute);font-size:13px;line-height:1.5}
-.shi b{color:var(--text)}.shi .warn{color:var(--warn)}
+.shi b{color:var(--text)}.shi .warn{color:var(--warn);margin-top:6px}
 .shgrp{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .shgrp .hint{margin:0 0 4px}
-@media(prefers-reduced-motion:reduce){#sh *{transition:none!important}#sh .pr{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -596,7 +545,7 @@ const EN = {
 'Dépose des images PNG ou JPG':'Drop PNG or JPG images','Enregistré':'Saved','Supprimé':'Deleted','Trade ajouté':'Trade added','Entre un ticker':'Enter a ticker','Entre un PnL':'Enter a PnL','Entre un PnL, ou investi + reçu':'Enter a PnL, or invested + received','Colle l\'adresse de ton wallet.':'Paste your wallet address.','Connexion à Helius…':'Connecting to Helius…','Reconstruction des trades…':'Rebuilding trades…','Récupération des noms de tokens…':'Fetching token names…','Connexion annulée':'Connection cancelled','Adresse récupérée (lecture seule)':'Address retrieved (read-only)','Phantom introuvable dans ce navigateur':'Phantom not found in this browser',
 'Objectifs enregistrés':'Goals saved','Objectifs effacés':'Goals cleared','CSV copié':'CSV copied','Copié : colle dans Sheets (Ctrl+V)':'Copied: paste into Sheets (Ctrl+V)','Rien à importer':'Nothing to import','Tableau vide':'Empty table','Sauvegarde impossible':'Could not save','Touche les cartes à supprimer':'Tap the cards to delete','Échec de l\'import':'Import failed','L\'import d\'images est dans l\'application locale':'Image import is in the local app','Le lien fonctionne dans l\'application locale.':'The link works in the local app.',
 'Adresse invalide. Une adresse Solana fait 32 à 44 caractères.':'Invalid address. A Solana address is 32 to 44 characters.','Ça ressemble à une phrase secrète. Ne la colle jamais ici : il faut l\'adresse publique, celle qu\'on peut partager.':'This looks like a seed phrase. Never paste it here: we need the public address, the one you can share.','Ça ressemble à une clé privée. Ne la colle jamais ici : il faut l\'adresse publique.':'This looks like a private key. Never paste it here: we need the public address.','Clé Helius refusée. Vérifie-la sur helius.dev.':'Helius key rejected. Check it on helius.dev.','Impossible de joindre Helius. Vérifie ta connexion.':'Cannot reach Helius. Check your connection.','Le serveur public a refusé la requête. Réessaie dans une minute, ou ajoute une clé Helius gratuite.':'The public server refused the request. Try again in a minute, or add a free Helius key.','Le serveur public est saturé. Réessaie dans une minute, ou ajoute une clé Helius gratuite.':'The public server is overloaded. Try again in a minute, or add a free Helius key.','Réponse inattendue de Helius.':'Unexpected response from Helius.','Erreur inattendue.':'Unexpected error.','Le serveur local ne répond pas.':'The local server is not responding.',
-'Ajouter un trade à la main':'Add a trade by hand','Démo · données fictives · v5':'Demo · sample data · v5','Les images restent sur cet ordinateur · v5':'Images stay on this computer · v5','Meilleur retour %':'Best return %','Narratif':'Narrative','Annuler':'Cancel','Saisis-les à la main dans l\'onglet Cartes, ou vérifie qu\'il s\'agit bien d\'une carte Terminal, Axiom ou GMGN (pas d\'une capture d\'écran)':'Enter them by hand in the Cards tab, or check it is really a Terminal, Axiom or GMGN card (not a screenshot)','Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.':'Check that the black start.bat window is still open, then try again.','Tesseract n\'est pas installé.':'Tesseract is not installed.','C\'est le moteur qui lit les images. Installe-le (winget install --id UB-Mannheim.TesseractOCR), puis relance start.bat.':'It is the engine that reads images. Install it (winget install --id UB-Mannheim.TesseractOCR), then restart start.bat.','Version web · tes données restent dans ce navigateur · v5':'Web version · your data stays in this browser · v5','Ton journal de trading memecoins.':'Your memecoin trading journal.','Ajoute tes trades à la main ou importe un CSV / Google Sheets : stats, calendrier et courbe de capital se font tout seuls. Tes données restent dans ce navigateur. Pour lire tes PNL cards en image et connecter ton wallet, télécharge l\'application locale.':'Add your trades by hand or import a CSV / Google Sheet: stats, calendar and equity curve build themselves. Your data stays in this browser. To read PNL card images and connect your wallet, download the local app.','Ajouter un trade':'Add a trade','Télécharger l\'application locale':'Download the local app','Lecture d\'images : dans l\'application locale':'Image reading: in the local app','Galerie':'Gallery','Liste':'List','Voir la fiche':'View details','Précédent':'Previous','Suivant':'Next','Fermer':'Close','Partager':'Share','Avec tes vraies cartes':'With your real cards','Un lien ne peut pas contenir les images (trop lourdes). Pour envoyer tes vrais PNG :':'A link cannot hold the images (too heavy). To send your real PNGs:','Affiche PNG':'PNG poster','Page .html':'.html page','L\'affiche s\'envoie comme une image. La page .html est un fichier à envoyer : elle s\'ouvre dans le navigateur, avec toutes les images.':'The poster is sent like an image. The .html page is a file to send: it opens in the browser, with all the images.','Juste un lien':'Just a link','Même page, sans les images. Les données sont dans le lien lui-même : rien n\'est stocké sur un serveur.':'Same page, without the images. The data lives in the link itself: nothing is stored on a server.','Partager mes cartes':'Share my cards','Un lien vers une page stylée à envoyer à tes potes':'A link to a styled page to send to your friends','Crée un lien vers une page stylée avec tes cartes. Les données sont dans le lien lui-même : rien n\'est stocké sur un serveur. Qui a le lien voit ces trades.':'Create a link to a styled page with your cards. The data lives in the link itself: nothing is stored on a server. Anyone with the link sees these trades.','Ton pseudo':'Your name','Quels trades':'Which trades','Tous mes trades':'All my trades','Ce mois-ci':'This month','30 derniers jours':'Last 30 days','Mes 30 meilleurs':'My top 30','Montants':'Amounts','PnL + %':'PnL + %','% seulement':'% only','Copier le lien':'Copy link','Envoyer':'Send','Aperçu':'Preview','Lien copié':'Link copied','Fait par':'Made by','Langue':'Language','Open source sur GitHub':'Open source on GitHub'
+'Ajouter un trade à la main':'Add a trade by hand','Démo · données fictives · v5':'Demo · sample data · v5','Les images restent sur cet ordinateur · v5':'Images stay on this computer · v5','Meilleur retour %':'Best return %','Narratif':'Narrative','Annuler':'Cancel','Saisis-les à la main dans l\'onglet Cartes, ou vérifie qu\'il s\'agit bien d\'une carte Terminal, Axiom ou GMGN (pas d\'une capture d\'écran)':'Enter them by hand in the Cards tab, or check it is really a Terminal, Axiom or GMGN card (not a screenshot)','Vérifie que la fenêtre noire de start.bat est toujours ouverte, puis réessaie.':'Check that the black start.bat window is still open, then try again.','Tesseract n\'est pas installé.':'Tesseract is not installed.','C\'est le moteur qui lit les images. Installe-le (winget install --id UB-Mannheim.TesseractOCR), puis relance start.bat.':'It is the engine that reads images. Install it (winget install --id UB-Mannheim.TesseractOCR), then restart start.bat.','Version web · tes données restent dans ce navigateur · v5':'Web version · your data stays in this browser · v5','Ton journal de trading memecoins.':'Your memecoin trading journal.','Ajoute tes trades à la main ou importe un CSV / Google Sheets : stats, calendrier et courbe de capital se font tout seuls. Tes données restent dans ce navigateur. Pour lire tes PNL cards en image et connecter ton wallet, télécharge l\'application locale.':'Add your trades by hand or import a CSV / Google Sheet: stats, calendar and equity curve build themselves. Your data stays in this browser. To read PNL card images and connect your wallet, download the local app.','Ajouter un trade':'Add a trade','Télécharger l\'application locale':'Download the local app','Lecture d\'images : dans l\'application locale':'Image reading: in the local app','Galerie':'Gallery','Liste':'List','Voir la fiche':'View details','Précédent':'Previous','Suivant':'Next','Fermer':'Close','Partager':'Share','Lien':'Link','Avec les images':'With images','Sans les images':'Without images','Qualité maximale':'Maximum quality','Tout est dans le lien, rien n\'est stocké sur un serveur. Avec les images, elles sont réduites pour tenir dedans.':'Everything lives in the link, nothing is stored on a server. With images, they are shrunk to fit.','Tes cartes en grand, sans réduction. À envoyer comme un fichier.':'Your cards at full size, no shrinking. Send it as a file.','Avec tes vraies cartes':'With your real cards','Un lien ne peut pas contenir les images (trop lourdes). Pour envoyer tes vrais PNG :':'A link cannot hold the images (too heavy). To send your real PNGs:','Affiche PNG':'PNG poster','Page .html':'.html page','L\'affiche s\'envoie comme une image. La page .html est un fichier à envoyer : elle s\'ouvre dans le navigateur, avec toutes les images.':'The poster is sent like an image. The .html page is a file to send: it opens in the browser, with all the images.','Juste un lien':'Just a link','Même page, sans les images. Les données sont dans le lien lui-même : rien n\'est stocké sur un serveur.':'Same page, without the images. The data lives in the link itself: nothing is stored on a server.','Partager mes cartes':'Share my cards','Un lien vers une page stylée à envoyer à tes potes':'A link to a styled page to send to your friends','Crée un lien vers une page stylée avec tes cartes. Les données sont dans le lien lui-même : rien n\'est stocké sur un serveur. Qui a le lien voit ces trades.':'Create a link to a styled page with your cards. The data lives in the link itself: nothing is stored on a server. Anyone with the link sees these trades.','Ton pseudo':'Your name','Quels trades':'Which trades','Tous mes trades':'All my trades','Ce mois-ci':'This month','30 derniers jours':'Last 30 days','Mes 30 meilleurs':'My top 30','Montants':'Amounts','PnL + %':'PnL + %','% seulement':'% only','Copier le lien':'Copy link','Envoyer':'Send','Aperçu':'Preview','Lien copié':'Link copied','Fait par':'Made by','Langue':'Language','Open source sur GitHub':'Open source on GitHub'
 };
 /* motifs : mots courts et phrases composées (ordre = priorité) */
 const EN_RE = [
@@ -1586,26 +1535,31 @@ async function handleFiles(list){
 }
 
 
-/* ---------- partage : lien / affiche PNG / page .html avec les vraies images ---------- */
+/* ---------- partage : lien (avec images réduites) / affiche PNG / page .html ---------- */
 const SHARE_BASE = WEB ? (location.origin+location.pathname) : 'https://pnl.trade-blanks.com/';
 const HOME_URL = () => (location.protocol==='file:'||window.__SHARE__) ? 'https://pnl.trade-blanks.com/' : location.pathname;
 const bytesB64 = u => { let s=''; for(let i=0;i<u.length;i+=8192) s+=String.fromCharCode.apply(null,u.subarray(i,i+8192)); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); };
 const b64Bytes = b => { const s=atob(b.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((b.length+3)%4)); const u=new Uint8Array(s.length); for(let i=0;i<s.length;i++) u[i]=s.charCodeAt(i); return u; };
-async function shareEncode(obj){
-  const raw=new TextEncoder().encode(JSON.stringify(obj));
-  if(window.CompressionStream){
-    const cs=new CompressionStream('deflate-raw'), w=cs.writable.getWriter(); w.write(raw); w.close();
-    return 'z'+bytesB64(new Uint8Array(await new Response(cs.readable).arrayBuffer()));
-  }
-  return 'r'+bytesB64(raw);
+const deflate = async (u,dir) => { const s=dir?new CompressionStream('deflate-raw'):new DecompressionStream('deflate-raw'), w=s.writable.getWriter(); w.write(u); w.close(); return new Uint8Array(await new Response(s.readable).arrayBuffer()); };
+async function shareEncode(obj,imgs){
+  let A=new TextEncoder().encode(JSON.stringify(obj)), z=0;
+  if(window.CompressionStream){ A=await deflate(A,true); z=1; }
+  if(!imgs||!imgs.some(Boolean)) return (z?'z':'r')+bytesB64(A);
+  let tot=5+A.length; imgs.forEach(i=>{ tot+=1+(i?4+i.u.length:0); });
+  const buf=new Uint8Array(tot), dv=new DataView(buf.buffer); let p=0;
+  buf[p++]=z; dv.setUint32(p,A.length); p+=4; buf.set(A,p); p+=A.length;
+  imgs.forEach(i=>{ if(!i){ buf[p++]=0; return; } buf[p++]=i.t; dv.setUint32(p,i.u.length); p+=4; buf.set(i.u,p); p+=i.u.length; });
+  return 'i'+bytesB64(buf);
 }
 async function shareDecode(hash){
-  const b=hash.slice(3), bytes=b64Bytes(b.slice(1));
-  if(b[0]==='z'){
-    const ds=new DecompressionStream('deflate-raw'), w=ds.writable.getWriter(); w.write(bytes); w.close();
-    return JSON.parse(new TextDecoder().decode(await new Response(ds.readable).arrayBuffer()));
-  }
-  return JSON.parse(new TextDecoder().decode(bytes));
+  const b=hash.slice(3), bytes=b64Bytes(b.slice(1)), td=new TextDecoder();
+  if(b[0]==='r') return JSON.parse(td.decode(bytes));
+  if(b[0]==='z') return JSON.parse(td.decode(await deflate(bytes,false)));
+  const dv=new DataView(bytes.buffer), z=bytes[0], la=dv.getUint32(1); let A=bytes.subarray(5,5+la), p=5+la;
+  if(z) A=await deflate(A,false);
+  const d=JSON.parse(td.decode(A)); d.im=[];
+  for(let i=0;i<d.t.length&&p<bytes.length;i++){ const t=bytes[p++]; if(!t){ d.im.push(null); continue; } const l=dv.getUint32(p); p+=4; d.im.push(URL.createObjectURL(new Blob([bytes.subarray(p,p+l)],{type:t===1?'image/webp':'image/jpeg'}))); p+=l; }
+  return d;
 }
 function shareList(o){
   let L=trades(); const now=Date.now();
@@ -1623,11 +1577,25 @@ function shareRows(o,L){
     return [String(c.token||'?').slice(0,14), o.full?Math.round(v*K):Math.sign(v), pc==null?null:Math.round(pc*100), o.full?Math.round(inv*K):0, c.dateMs?Math.round(c.dateMs/864e5):0];
   });
 }
-async function shareUrl(o){
-  const t=shareRows(o), enc=await shareEncode({v:1,n:o.name,u:solMode()?'S':'U',m:o.full?1:0,t});
-  return {url:SHARE_BASE+'#s='+enc, n:t.length};
-}
 const loadImg = src => new Promise((ok,ko)=>{ const im=new Image(); im.onload=()=>ok(im); im.onerror=ko; im.src=src; });
+const IMGC=new Map();
+async function imgTiny(c,w,q){
+  if(!c.img) return null; const k=(c.id||c.token)+'|'+w+'|'+q; if(IMGC.has(k)) return IMGC.get(k);
+  try{
+    const im=await loadImg(c.img), r=Math.min(1,w/im.naturalWidth), cv=document.createElement('canvas'); cv.width=Math.round(im.naturalWidth*r); cv.height=Math.round(im.naturalHeight*r); cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+    let t=1, b=await new Promise(r=>cv.toBlob(r,'image/webp',q)); if(!b||b.type!=='image/webp'){ t=2; b=await new Promise(r=>cv.toBlob(r,'image/jpeg',q)); }
+    const out={t,u:new Uint8Array(await b.arrayBuffer())}; IMGC.set(k,out); return out;
+  }catch(e){ return null; }
+}
+async function shareImgs(L,budget){
+  const per=Math.max(4000,Math.floor(budget/Math.max(L.length,1))), steps=[[520,.62],[440,.55],[380,.5],[320,.45],[260,.4],[220,.35]];
+  return Promise.all(L.map(async c=>{ if(!c.img) return null; let last=null; for(const [w,q] of steps){ const r=await imgTiny(c,w,q); if(!r) return null; last=r; if(r.u.length<=per) break; } return last; }));
+}
+async function shareUrl(o){
+  const L=shareList(o), t=shareRows(o,L), imgs=o.img?await shareImgs(L,450000):null;
+  const enc=await shareEncode({v:1,n:o.name,u:solMode()?'S':'U',m:o.full?1:0,t},imgs);
+  return {url:SHARE_BASE+'#s='+enc, n:t.length, ni:imgs?imgs.filter(Boolean).length:0};
+}
 async function imgSmall(c){
   if(!c.img) return null;
   try{ const im=await loadImg(c.img), k=Math.min(1,800/Math.max(im.naturalWidth,im.naturalHeight)), cv=document.createElement('canvas'); cv.width=Math.round(im.naturalWidth*k); cv.height=Math.round(im.naturalHeight*k); cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height); return cv.toDataURL('image/jpeg',.8); }catch(e){ return null; }
@@ -1643,138 +1611,148 @@ async function shareFile(o){
   download(new Blob([src],{type:'text/html'}),'pnl-'+slug(o.name)+'.html');
   return {n:L.length,imgs:im.filter(Boolean).length};
 }
+const rr=(x,a,b,w,h,r)=>{ x.beginPath(); x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r); x.arcTo(a+w,b+h,a,b+h,r); x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.closePath(); };
 async function sharePoster(o){
-  let L=shareList(o); const total=L.length; if(L.length>36) L=[...L].sort((a,b)=>val(b)-val(a)).slice(0,36); else L=[...L].sort((a,b)=>val(b)-val(a));
+  try{ await Promise.all([document.fonts.load('800 60px Manrope'),document.fonts.load('700 30px Manrope')]); }catch(e){}
+  let L=shareList(o); const total=L.length; L=[...L].sort((a,b)=>val(b)-val(a)); if(L.length>36) L=L.slice(0,36);
   const n=L.length, cols=n<=2?Math.max(n,1):n<=4?2:n<=9?3:n<=16?4:n<=25?5:6;
-  const W=2400, pad=104, gap=40, cw=Math.floor((W-2*pad-(cols-1)*gap)/cols), ih=Math.round(cw*2/3), capH=96, rows=Math.ceil(n/cols);
-  const F='"Helvetica Neue",Helvetica,Arial,sans-serif', M='ui-monospace,Menlo,Consolas,monospace';
-  const nm=(o.name||(LANG==='en'?'Anonymous':'Anonyme')).toUpperCase(); let fs=330; const mx=document.createElement('canvas').getContext('2d'); mx.font=`900 ${fs}px ${F}`; while(mx.measureText(nm).width>W-2*pad&&fs>90){ fs-=6; mx.font=`900 ${fs}px ${F}`; }
-  const nameBase=pad+130+Math.round(fs*.78), fy=nameBase+90, head=fy+140+70, foot=190, H=head+rows*(ih+capH+gap)+foot;
-  const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const x=cv.getContext('2d');
-  const INK='#141412', WALL='#e8e5dd', GN='#0b7a43', LS='#d23a1c', MUTE='#77736a';
-  x.fillStyle=WALL; x.fillRect(0,0,W,H);
-  const sm=solMode(), tot=sum(L.map(c=>val(c))), wins=L.filter(c=>c.pnl>0).length, T=(fr,en)=>LANG==='en'?en:fr;
-  x.fillStyle=INK; x.fillRect(pad,pad,W-2*pad,3);
-  x.font=`500 26px ${M}`; x.textBaseline='alphabetic'; x.fillStyle=INK; x.fillText('PNL CARDS — '+T('EXPOSITION','EXHIBITION'),pad,pad+52);
-  const days=L.map(c=>c.dateMs).filter(Boolean), dl=ms=>new Date(ms).toLocaleDateString(LOC,{day:'numeric',month:'short'}).toUpperCase();
-  const rng=days.length?dl(Math.min(...days))+' → '+dl(Math.max(...days)):''; x.textAlign='right'; x.fillText(rng,W-pad,pad+52); x.textAlign='left';
-  x.font=`900 ${fs}px ${F}`; x.fillStyle=INK; x.fillText(nm,pad-6,nameBase);
-  x.fillRect(pad,fy,W-2*pad,3); x.fillRect(pad,fy+140,W-2*pad,3);
-  const facts=[[T('Trades','Trades'),String(n)+(total>n?' / '+total:'')],['Win rate',Math.round(wins/n*100)+' %'],[o.full?'Total':T('Moyenne','Average'),o.full?(sm?sgn(tot,2)+' SOL':usd(tot)):(()=>{ const ps=L.filter(c=>typeof c.pct==='number').map(c=>c.pct); return ps.length?(sum(ps)/ps.length>0?'+':'')+(sum(ps)/ps.length).toFixed(0)+' %':'—'; })()],[T('Meilleur','Best'),(L[0].token||'?')+(typeof L[0].pct==='number'?' '+(L[0].pct>0?'+':'')+L[0].pct.toFixed(0)+' %':'')]];
-  const fw=(W-2*pad)/4; facts.forEach((f,i)=>{ const fx=pad+i*fw+(i?28:0); x.fillStyle=MUTE; x.font=`500 22px ${M}`; x.fillText(f[0].toUpperCase(),fx,fy+46); x.fillStyle=(i===2&&o.full)?(tot>=0?GN:LS):INK; let s2=62; x.font=`800 ${s2}px ${F}`; while(x.measureText(f[1]).width>fw-40&&s2>30){ s2-=2; x.font=`800 ${s2}px ${F}`; } x.fillText(f[1],fx,fy+112); if(i){ x.fillStyle='rgba(20,20,18,.16)'; x.fillRect(pad+i*fw,fy+20,2,100); } });
+  const W=2400, pad=96, gap=28, cw=Math.floor((W-2*pad-(cols-1)*gap)/cols), ih=Math.round(cw*2/3), rows=Math.ceil(n/cols), F='Manrope,system-ui,-apple-system,"Segoe UI",sans-serif';
+  const BG='#07080b', S1='#0e1116', LN='#262d39', TX='#f4f5f7', MU='#8089a0', GN='#5fe3b0', LS='#ff7c88', T=(fr,en)=>LANG==='en'?en:fr, sm=solMode();
+  const nm=(o.name||T('Anonyme','Anonymous')), mx=document.createElement('canvas').getContext('2d'); let fs=250; mx.font=`800 ${fs}px ${F}`; while(mx.measureText(nm).width>W-2*pad&&fs>80){ fs-=6; mx.font=`800 ${fs}px ${F}`; }
+  const nameBase=pad+150+Math.round(fs*.78), ky=nameBase+70, kh=190, head=ky+kh+70, foot=170, H=head+rows*(ih+gap)+foot-gap;
+  const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const x=cv.getContext('2d'); x.textBaseline='alphabetic';
+  const ls=v=>{ try{ x.letterSpacing=v; }catch(e){} };
+  x.fillStyle=BG; x.fillRect(0,0,W,H);
+  const g1=x.createRadialGradient(W*.3,0,0,W*.3,0,900); g1.addColorStop(0,'rgba(19,36,30,.9)'); g1.addColorStop(1,'rgba(19,36,30,0)'); x.fillStyle=g1; x.fillRect(0,0,W,900);
+  x.fillStyle=GN; x.shadowColor=GN; x.shadowBlur=28; rr(x,pad,pad+8,24,24,7); x.fill(); x.shadowBlur=0;
+  x.fillStyle=TX; x.font=`800 44px ${F}`; ls('-1px'); x.fillText('PnL Cards',pad+46,pad+36);
+  const days=L.map(c=>c.dateMs).filter(Boolean), dl=ms=>new Date(ms).toLocaleDateString(LOC,{day:'numeric',month:'short'});
+  x.fillStyle=MU; x.font=`700 34px ${F}`; ls('0px'); x.textAlign='right'; x.fillText(days.length?dl(Math.min(...days))+' → '+dl(Math.max(...days)):'',W-pad,pad+36); x.textAlign='left';
+  x.fillStyle=TX; x.font=`800 ${fs}px ${F}`; ls(Math.round(-fs*.045)+'px'); x.fillText(nm,pad-8,nameBase); ls('0px');
+  const tot=sum(L.map(c=>val(c))), wins=L.filter(c=>c.pnl>0).length, ps=L.filter(c=>typeof c.pct==='number').map(c=>c.pct), avg=ps.length?sum(ps)/ps.length:null;
+  const pct=c=>typeof c.pct==='number'?(c.pct>0?'+':c.pct<0?'−':'')+Math.abs(c.pct).toFixed(Math.abs(c.pct)>=100?0:2)+' %':'';
+  const pv=c=>o.full?(sm?sgn(val(c),3):usd(val(c))):(pct(c)||(c.pnl>0?T('Gain','Win'):T('Perte','Loss')));
+  const K=[[T('Trades','Trades'),String(n)+(total>n?' / '+total:''),TX],['Win rate',Math.round(wins/n*100)+' %',TX],[o.full?'Total':T('Moyenne','Average'),o.full?(sm?sgn(tot,2)+' SOL':usd(tot)):(avg==null?'—':(avg>0?'+':'')+avg.toFixed(0)+' %'),(o.full?tot:avg)<0?LS:GN],[T('Meilleur','Best'),(L[0].token||'?')+' '+(pct(L[0])||''),GN]];
+  const kg=24, kw=(W-2*pad-3*kg)/4;
+  K.forEach((k,i)=>{ const kx=pad+i*(kw+kg); x.fillStyle=S1; rr(x,kx,ky,kw,kh,36); x.fill(); x.strokeStyle=LN; x.lineWidth=2; rr(x,kx,ky,kw,kh,36); x.stroke();
+    x.fillStyle=MU; x.font=`700 30px ${F}`; x.fillText(k[0],kx+44,ky+68); let s2=64; x.font=`800 ${s2}px ${F}`; while(x.measureText(k[1]).width>kw-88&&s2>28){ s2-=2; x.font=`800 ${s2}px ${F}`; } ls('-1px'); x.fillStyle=k[2]; x.fillText(k[1],kx+44,ky+142); ls('0px'); });
   const imgs=await Promise.all(L.map(async c=>{ try{ return c.img?await loadImg(c.img):null; }catch(e){ return null; } }));
-  const pc=c=>typeof c.pct==='number'?(c.pct>0?'+':c.pct<0?'−':'')+Math.abs(c.pct).toFixed(Math.abs(c.pct)>=100?0:2)+' %':(o.full?sgn(val(c),2):'');
   L.forEach((c,i)=>{
-    const col=i%cols, row=Math.floor(i/cols), cx=pad+col*(cw+gap), cy=head+row*(ih+capH+gap);
-    const im=imgs[i];
-    if(im){ const r=im.naturalWidth/im.naturalHeight, tr=cw/ih; let sw=im.naturalWidth, sh=im.naturalHeight, sx=0, sy=0; if(r>tr){ sw=sh*tr; sx=(im.naturalWidth-sw)/2; } else { sh=sw/tr; sy=(im.naturalHeight-sh)/2; } x.shadowColor='rgba(20,20,18,.35)'; x.shadowBlur=36; x.shadowOffsetY=18; x.fillStyle=INK; x.fillRect(cx,cy,cw,ih); x.shadowColor='transparent'; x.drawImage(im,sx,sy,sw,sh,cx,cy,cw,ih); }
-    else { x.fillStyle=INK; x.fillRect(cx,cy,cw,ih); x.fillStyle=WALL; x.font=`900 ${Math.round(cw*.13)}px ${F}`; x.fillText((c.token||'?').toUpperCase().slice(0,10),cx+cw*.06,cy+cw*.17); x.fillStyle=c.pnl<0?'#ff6a4d':'#d9ff45'; x.font=`800 ${Math.round(cw*.1)}px ${F}`; x.fillText(pc(c),cx+cw*.06,cy+ih-cw*.06); }
-    x.fillStyle=INK; x.font=`800 ${Math.round(cw*.06)}px ${F}`; x.fillText((c.token||'?').slice(0,14),cx,cy+ih+Math.round(cw*.09));
-    x.textAlign='right'; x.fillStyle=c.pnl<0?LS:GN; x.fillText(pc(c),cx+cw,cy+ih+Math.round(cw*.09)); x.textAlign='left';
-    x.fillStyle=MUTE; x.font=`500 ${Math.max(18,Math.round(cw*.036))}px ${M}`; x.fillText((c.dateMs?dl(c.dateMs):'')+(o.full&&c.invested?'':''),cx,cy+ih+Math.round(cw*.09)+Math.round(cw*.06));
+    const col=i%cols, row=Math.floor(i/cols), cx=pad+col*(cw+gap), cy=head+row*(ih+gap), im=imgs[i], r=Math.round(cw*.06);
+    x.save(); rr(x,cx,cy,cw,ih,r); x.clip();
+    if(im){ const ra=im.naturalWidth/im.naturalHeight, tr=cw/ih; let sw=im.naturalWidth, sh=im.naturalHeight, sx=0, sy=0; if(ra>tr){ sw=sh*tr; sx=(im.naturalWidth-sw)/2; } else { sh=sw/tr; sy=(im.naturalHeight-sh)/2; } x.drawImage(im,sx,sy,sw,sh,cx,cy,cw,ih); }
+    else { const h=hue(c.token), gr=x.createLinearGradient(cx,cy,cx+cw,cy+ih); gr.addColorStop(0,`hsl(${h} 40% 18%)`); gr.addColorStop(1,`hsl(${h} 36% 8%)`); x.fillStyle=gr; x.fillRect(cx,cy,cw,ih); x.fillStyle=`hsl(${h} 70% 70% / .1)`; x.font=`800 ${Math.round(ih*.9)}px ${F}`; x.textAlign='right'; x.fillText((c.token||'?').slice(0,1).toUpperCase(),cx+cw*1.02,cy+ih*1.05); x.textAlign='left'; x.fillStyle=`hsl(${h} 85% 85%)`; x.font=`800 ${Math.round(cw*.12)}px ${F}`; x.fillText((c.token||'?').slice(0,10),cx+cw*.07,cy+ih*.48); x.fillStyle=`hsl(${h} 40% 72%)`; x.font=`700 ${Math.round(cw*.07)}px ${F}`; x.fillText(pv(c),cx+cw*.07,cy+ih*.48+cw*.1); }
+    if(im){ const gg=x.createLinearGradient(0,cy+ih*.62,0,cy+ih); gg.addColorStop(0,'rgba(5,6,9,0)'); gg.addColorStop(1,'rgba(5,6,9,.92)'); x.fillStyle=gg; x.fillRect(cx,cy+ih*.55,cw,ih*.45);
+      const fz=Math.round(cw*.062); x.font=`800 ${fz}px ${F}`; x.fillStyle=TX; x.fillText((c.token||'?').slice(0,12),cx+cw*.05,cy+ih-cw*.045); x.textAlign='right'; x.fillStyle=c.pnl<0?LS:GN; x.fillText(pv(c),cx+cw*.95,cy+ih-cw*.045); x.textAlign='left'; }
+    x.restore(); x.strokeStyle=LN; x.lineWidth=2; rr(x,cx,cy,cw,ih,r); x.stroke();
   });
-  const by=H-foot+20; x.fillStyle=INK; x.fillRect(pad,by,W-2*pad,3); x.font=`500 24px ${M}`; x.fillText('PNL.TRADE-BLANKS.COM',pad,by+64); x.textAlign='right'; x.fillText(T('FAIT PAR WTHEJULIO','MADE BY WTHEJULIO'),W-pad,by+64); x.textAlign='left';
+  const by=H-foot+gap+30; x.fillStyle=LN; x.fillRect(pad,by,W-2*pad,2); x.fillStyle=MU; x.font=`700 32px ${F}`; x.fillText('pnl.trade-blanks.com',pad,by+72); x.textAlign='right'; x.fillText(T('Fait par wthejulio','Made by wthejulio'),W-pad,by+72); x.textAlign='left';
   const blob=await new Promise(r=>cv.toBlob(r,'image/png')), file=new File([blob],'pnl-cards-'+slug(o.name)+'.png',{type:'image/png'});
   return {blob,file,n,total};
 }
 function openShare(){
   let nm=''; try{ nm=localStorage.getItem('pnl_share_name')||''; }catch(e){}
-  const o={name:nm,range:'all',full:true};
+  const o={name:nm,range:'all',full:true,img:true};
   openPanel(`<div class="sh-top"><div class="tk">Partager</div><button class="link" id="x" type="button">Fermer</button></div>
     <label class="lbl" for="sh_n">Ton pseudo</label><input class="fld" id="sh_n" maxlength="24" placeholder="ex. wthejulio" value="${esc(nm)}" autocomplete="off">
     <label class="lbl" for="sh_r">Quels trades</label><select class="sel" id="sh_r"><option value="all">Tous mes trades</option><option value="month">Ce mois-ci</option><option value="30">30 derniers jours</option><option value="top30">Mes 30 meilleurs</option></select>
     <label class="lbl">Montants</label><div class="chips"><button class="chip on" data-f="1" type="button">PnL + %</button><button class="chip" data-f="0" type="button">% seulement</button></div>
-    <div class="shgrp"><b>Avec tes vraies cartes</b><p class="hint">Un lien ne peut pas contenir les images (trop lourdes). Pour envoyer tes vrais PNG :</p>
-      <div class="sha"><button class="pill" id="sh_p" type="button">Affiche PNG</button><button class="chip" id="sh_h" type="button">Page .html</button></div>
-      <p class="hint">L'affiche s'envoie comme une image. La page .html est un fichier à envoyer : elle s'ouvre dans le navigateur, avec toutes les images.</p></div>
-    <div class="shgrp"><b>Juste un lien</b><p class="hint">Même page, sans les images. Les données sont dans le lien lui-même : rien n'est stocké sur un serveur.</p>
+    <div class="shgrp"><b>Lien</b><p class="hint">Tout est dans le lien, rien n'est stocké sur un serveur. Avec les images, elles sont réduites pour tenir dedans.</p>
+      <div class="chips" style="margin-top:8px"><button class="chip on" data-i="1" type="button">Avec les images</button><button class="chip" data-i="0" type="button">Sans les images</button></div>
       <div class="shi" id="sh_i">…</div>
-      <div class="sha"><button class="chip" id="sh_c" type="button">Copier le lien</button>${navigator.share?'<button class="chip" id="sh_s" type="button">Envoyer</button>':''}<button class="chip" id="sh_o" type="button">Aperçu</button></div></div>`);
-  let cur=null, seq=0;
-  const upd=async()=>{
+      <div class="sha"><button class="chip" id="sh_c" type="button">Copier le lien</button>${navigator.share?'<button class="chip" id="sh_s" type="button">Envoyer</button>':''}<button class="chip" id="sh_o" type="button">Aperçu</button></div></div>
+    <div class="shgrp"><b>Qualité maximale</b><p class="hint">Tes cartes en grand, sans réduction. À envoyer comme un fichier.</p>
+      <div class="sha"><button class="pill" id="sh_p" type="button">Affiche PNG</button><button class="chip" id="sh_h" type="button">Page .html</button></div></div>`);
+  let cur=null, seq=0, tm=0;
+  const upd=()=>{ clearTimeout(tm); $('sh_i').textContent='…'; tm=setTimeout(async()=>{
     const me=++seq; o.name=($('sh_n').value||'').trim().slice(0,24);
     const r=await shareUrl(o); if(me!==seq) return; cur=r;
-    const len=r.url.length, long=len>1900, en=LANG==='en';
-    $('sh_i').innerHTML=r.n?`<b>${r.n} trade${r.n>1?'s':''}</b> · ${en?`link of ${len.toLocaleString('en-GB')} characters`:`lien de ${len.toLocaleString('fr-FR')} caractères`}${long?`<div class="warn">${en?'A bit long for Discord (2,000 max): pick "This month" or "My top 30".':'Un peu long pour Discord (2 000 max) : choisis « Ce mois-ci » ou « Mes 30 meilleurs ».'}</div>`:''}`:(en?'No trades for this period.':'Aucun trade pour cette période.');
-  };
-  const busy=(id,txt,fn)=>async()=>{ const b=$(id), t0=b.textContent; if(b.disabled) return; b.disabled=true; b.textContent=txt; try{ await fn(); }catch(e){ toast(LANG==='en'?'Could not create it':'Impossible de le créer'); } b.disabled=false; b.textContent=t0; if(LANG==='en') trDom(b); };
+    const len=r.url.length, en=LANG==='en', kb=len>=10000?Math.round(len/1000)+' '+(en?'KB':'Ko'):'', long=len>1900;
+    $('sh_i').innerHTML=r.n?`<b>${r.n} trade${r.n>1?'s':''}</b>${r.ni?` · ${r.ni} ${en?'images':'image'+(r.ni>1?'s':'')}`:''} · ${kb?(en?`link of ${kb}`:`lien de ${kb}`):(en?`link of ${len.toLocaleString('en-GB')} characters`:`lien de ${len.toLocaleString('fr-FR')} caractères`)}${long?`<div class="warn">${en?'Too long for Discord or X (2,000 characters). It works pasted in a browser, an email or notes. For a chat, send the .html page or the poster, or pick "No images".':'Trop long pour Discord ou X (2 000 caractères). Il marche collé dans un navigateur, un e-mail ou des notes. Pour un chat, envoie la page .html ou l\'affiche, ou choisis « Sans les images ».'}</div>`:''}`:(en?'No trades for this period.':'Aucun trade pour cette période.');
+  },r0?0:250); r0=0; };
+  let r0=1;
+  const busy=(id,fn)=>async()=>{ const b=$(id), t0=b.textContent; if(b.disabled) return; b.disabled=true; b.textContent='…'; try{ await fn(); }catch(e){ toast(LANG==='en'?'Could not create it':'Impossible de le créer'); } b.disabled=false; b.textContent=t0; };
   $('sh_n').oninput=()=>{ try{ localStorage.setItem('pnl_share_name',$('sh_n').value.trim()); }catch(e){} upd(); };
   $('sh_r').onchange=e=>{ o.range=e.target.value; upd(); };
   document.querySelectorAll('#sheet .chip[data-f]').forEach(b=>b.onclick=()=>{ o.full=b.dataset.f==='1'; document.querySelectorAll('#sheet .chip[data-f]').forEach(x=>x.classList.toggle('on',x===b)); upd(); });
-  $('sh_c').onclick=async()=>{ if(!cur||!cur.n) return; try{ await navigator.clipboard.writeText(cur.url); toast('Lien copié'); }catch(e){ window.prompt('Copie ce lien',cur.url); } };
-  if($('sh_s')) $('sh_s').onclick=()=>{ if(cur&&cur.n) navigator.share({title:'PnL Cards',url:cur.url}).catch(()=>{}); };
-  $('sh_o').onclick=()=>{ if(cur&&cur.n) window.open(cur.url,'_blank','noopener'); };
-  $('sh_h').onclick=busy('sh_h','…',async()=>{ const r=await shareFile(o); toast(r.imgs?`${r.imgs}/${r.n} ${LANG==='en'?'images included':'images incluses'}`:(LANG==='en'?'No images to include':'Aucune image à inclure')); });
-  $('sh_p').onclick=busy('sh_p','…',async()=>{ const r=await sharePoster(o);
+  document.querySelectorAll('#sheet .chip[data-i]').forEach(b=>b.onclick=()=>{ o.img=b.dataset.i==='1'; document.querySelectorAll('#sheet .chip[data-i]').forEach(x=>x.classList.toggle('on',x===b)); upd(); });
+  const ready=async()=>{ if(!cur||seq===0) cur=await shareUrl(o); return cur; };
+  $('sh_c').onclick=async()=>{ const r=await ready(); if(!r||!r.n) return; try{ await navigator.clipboard.writeText(r.url); toast('Lien copié'); }catch(e){ window.prompt('Copie ce lien',r.url); } };
+  if($('sh_s')) $('sh_s').onclick=async()=>{ const r=await ready(); if(r&&r.n) navigator.share({title:'PnL Cards',url:r.url}).catch(()=>{}); };
+  $('sh_o').onclick=async()=>{ const r=await ready(); if(r&&r.n) window.open(r.url,'_blank','noopener'); };
+  $('sh_h').onclick=busy('sh_h',async()=>{ const r=await shareFile(o); toast(r.imgs?`${r.imgs}/${r.n} ${LANG==='en'?'images included':'images incluses'}`:(LANG==='en'?'No images to include':'Aucune image à inclure')); });
+  $('sh_p').onclick=busy('sh_p',async()=>{ const r=await sharePoster(o);
     if(navigator.canShare&&navigator.canShare({files:[r.file]})&&/Android|iPhone|iPad/i.test(navigator.userAgent)){ try{ await navigator.share({files:[r.file]}); return; }catch(e){ if(e&&e.name==='AbortError') return; } }
     download(r.blob,r.file.name); toast(r.total>r.n?(LANG==='en'?`Poster saved (top ${r.n})`:`Affiche enregistrée (top ${r.n})`):(LANG==='en'?'Poster saved':'Affiche enregistrée')); });
   upd();
+  if(LANG==='en') trDom($('sheet'));
 }
 
-/* --- la page publique --- */
+/* --- la page publique : même système visuel que l'app --- */
 async function shareBoot(){
   document.documentElement.classList.add('share');
-  const root=document.createElement('div'); root.id='sh'; document.body.appendChild(root);
+  const root=document.createElement('div'); root.id='sh'; root.className='page'; document.body.appendChild(root);
   const T=(fr,en)=>LANG==='en'?en:fr, HOME=HOME_URL();
   let d=window.__SHARE__||null; if(!d){ try{ d=await shareDecode(location.hash); }catch(e){} }
+  const head=`<div class="top"><div class="brand"><i></i>PnL Cards</div><a class="pill" href="${HOME}">${T('Faire le mien','Make mine')} ↗</a></div>`;
   if(!d||!Array.isArray(d.t)||!d.t.length){
-    root.innerHTML=`<div class="wrap"><div class="top mono"><span>PnL Cards</span></div><h1>${T('Lien invalide','Invalid link')}</h1><p class="mono" style="color:var(--mute)">${T('Ce lien de partage est incomplet ou abîmé.','This share link is incomplete or damaged.')}</p><p style="margin-top:24px"><a class="mono" style="color:var(--ink)" href="${HOME}">PnL Cards ↗</a></p></div>`; return;
+    root.innerHTML=head+`<div class="hero"><small>PnL Cards</small><h1>${T('Lien invalide','Invalid link')}</h1><p style="color:var(--mute)">${T('Ce lien de partage est incomplet ou abîmé. Si tu l\'as copié depuis un chat, il a peut-être été coupé.','This share link is incomplete or damaged. If you copied it from a chat, it may have been cut off.')}</p></div>`; return;
   }
   const U=d.u==='U'?'U':'S', FULL=d.m===1, K=U==='S'?1e4:100;
-  const imgOk=s=>typeof s==='string'&&/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(s)?s:null;
+  const imgOk=s=>typeof s==='string'&&(/^blob:/.test(s)||/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(s))?s:null;
   const rows=d.t.slice(0,2000).map((r,i)=>{ const raw=+r[1]||0; return {i,tk:String(r[0]||'?').slice(0,16),s:Math.sign(raw),pnl:FULL?raw/K:0,pct:r[2]==null?null:(+r[2]||0)/100,inv:(+r[3]||0)/K,day:+r[4]||0,img:d.im?imgOk(d.im[i]):null}; }).sort((a,b)=>a.day-b.day||a.i-b.i);
-  const name=String(d.n||'').slice(0,24), n=rows.length, wins=rows.filter(r=>r.s>0).length, wr=wins/n*100;
+  const name=String(d.n||'').slice(0,24), n=rows.length, wins=rows.filter(r=>r.s>0).length;
   const tot=sum(rows.map(r=>r.pnl)), pcs=rows.filter(r=>r.pct!=null).map(r=>r.pct), avg=pcs.length?sum(pcs)/pcs.length:null;
   const key=r=>FULL?r.pnl:(r.pct==null?r.s:r.pct), byBest=[...rows].sort((a,b)=>key(b)-key(a)), best=byBest[0];
   const fU=(v,dd)=>U==='U'?usd(v):sgn(v,dd==null?2:dd);
-  const unitHtml=U==='S'?sol(true):'';
   const fPct=v=>v==null?'—':(v>0?'+':v<0?'−':'')+Math.abs(v).toFixed(Math.abs(v)>=100?0:2)+' %';
   const dLab=day=>day?new Date(day*864e5).toLocaleDateString(LOC,{day:'numeric',month:'short'}):'';
   const days=rows.map(r=>r.day).filter(Boolean), range=days.length?(dLab(Math.min(...days))+' → '+dLab(Math.max(...days))):'';
-  const pad2=v=>String(v).padStart(2,'0'), ROM=['I','II','III'];
-  const fig=(r,idx,num)=>{ const g=r.s<0?'l':'g', val_=r.pct!=null?fPct(r.pct):(FULL?fU(r.pnl,3):(r.s>0?T('Gain','Win'):T('Perte','Loss')));
-    return `<figure class="pr ${g}" data-k="${idx}" tabindex="0" role="button" aria-label="${esc(r.tk)}"><div class="fr">${r.img?`<img src="${r.img}" alt="${esc(r.tk)}" loading="lazy" decoding="async">`:`<div class="ph"><b>${esc(r.tk)}</b><i>${esc(val_)}</i></div>`}</div><figcaption><div class="a"><b>${esc(r.tk)}</b><span class="mono">${num?pad2(num)+' · ':''}${esc(dLab(r.day))}${FULL&&r.inv?' · '+T('investi','in')+' '+(U==='U'?usd(r.inv,false):r.inv.toFixed(2)):''}</span></div><span class="v">${esc(FULL&&r.pct!=null?(r.pnl<0?'−':'+')+fU(Math.abs(r.pnl),2).replace(/^[+−-]/,'')+(U==='S'?' SOL':''):val_)}</span></figcaption></figure>`; };
-  const fact=(l,v,c)=>`<div><small class="mono">${l}</small><b class="${c||''}">${v}</b></div>`;
-  const pod=byBest.slice(0,3);
-  root.innerHTML=`<div class="wrap">
-    <div class="top mono"><span>PnL Cards — ${T('Exposition','Exhibition')}</span><a href="${HOME}">${T('Faire le mien','Make mine')} ↗</a></div>
-    <div class="kick mono">${T('Sélection de trades','Trade selection')}${range?' · '+esc(range):''}</div>
-    <h1>${esc(name||T('Anonyme','Anonymous'))}</h1>
-    <div class="facts">${fact('Trades',String(n))}${fact('Win rate','<span id="shW">0</span> %')}${FULL?fact('Total','<span id="shTv">'+esc(fU(0))+'</span>'+unitHtml,tot<0?'l':'g'):(avg!=null?fact(T('Moyenne','Average'),esc(fPct(avg)),avg<0?'l':'g'):'')}${fact(T('Meilleur','Best'),esc(best.tk)+' <span class="g">'+esc(best.pct!=null?fPct(best.pct):(FULL?fU(best.pnl,2):''))+'</span>')}</div>
-    <h2 class="mono"><i>01</i>${T('Les trois pièces maîtresses','The three centrepieces')}</h2>
-    <div class="pod">${pod.map((r,k)=>`<div><div class="rom">${ROM[k]}</div>${fig(r,'p'+r.i)}</div>`).join('')}</div>
-    <h2 class="mono"><i>02</i>${T('L\'accrochage complet','The full hang')}</h2>
-    <div class="ctl"><button class="on" data-f="all" type="button">${T('Tous','All')}</button><button data-f="w" type="button">${T('Gains','Wins')}</button><button data-f="l" type="button">${T('Pertes','Losses')}</button><span class="sp"></span><button class="on" data-o="best" type="button">${T('Meilleurs','Best')}</button><button data-o="date" type="button">${T('Récents','Recent')}</button></div>
-    <div class="wall" id="shWall"></div>
-    <section class="cta"><h3>${T('Fais le tien.','Make yours.')}</h3><p>${T('Journal de trading open source pour memecoins. Dépose tes PNL cards : tout est lu dans ton navigateur, rien n\'est envoyé.','Open-source memecoin trading journal. Drop your PNL cards: everything is read in your browser, nothing is uploaded.')}</p><a href="${HOME}">${T('Ouvrir PnL Cards','Open PnL Cards')} ↗</a></section>
-    <div class="cr mono"><span>${T('Fait par','Made by')} <a href="https://x.com/wthejulio" target="_blank" rel="noopener">wthejulio</a></span><a href="${GH}" target="_blank" rel="noopener">${T('Open source sur GitHub','Open source on GitHub')} ↗</a></div></div>`;
+  const vt=r=>FULL?fU(r.pnl,3):(r.pct!=null?fPct(r.pct):(r.s>0?T('Gain','Win'):T('Perte','Loss')));
+  const art=r=>r.img?`<img loading="lazy" decoding="async" src="${r.img}" alt="${esc(r.tk)}">`:`<div class="sy" style="--h:${hue(r.tk)}"><em>${esc(r.tk.slice(0,1).toUpperCase())}</em><b>${esc(r.tk)}</b><span class="n">${esc(vt(r))}</span></div>`;
+  const tile=(r,i,rk)=>`<div class="gt ${r.img?'':'syn'} ${r.s<0?'l':''}" data-k="${i}" style="--i:${Math.min(i,14)}" tabindex="0" role="button" aria-label="${esc(r.tk)}">${rk?`<i class="rk">#${rk}</i>`:''}${art(r)}<div class="ov"><span class="tk">${esc(r.tk)}</span><span class="pv n ${r.s>0?'gain':r.s<0?'loss':''}">${esc(vt(r))}</span></div></div>`;
+  const kpi=(k,v,c,dd)=>`<div class="kpi"><div class="k">${k}</div><div class="v n ${c||''}">${v}</div>${dd?`<div class="d">${dd}</div>`:''}</div>`;
+  const top=byBest.slice(0,3);
+  root.innerHTML=head+`<div class="hero"><small>${T('Sélection de trades','Trade selection')}${range?' · '+esc(range):''}</small><h1>${esc(name||T('Anonyme','Anonymous'))}</h1></div>
+    <div class="kpis">${kpi('Trades',`<span id="shN">0</span>`,'')}${kpi('Win rate',`<span id="shW">0</span> %`,wins/n>=.5?'gain':'loss')}${FULL?kpi('Total',`<span id="shTv">${esc(fU(0))}</span>${U==='S'?sol(false):''}`,tot>=0?'gain':'loss'):kpi(T('Moyenne','Average'),esc(fPct(avg)),avg>0?'gain':avg<0?'loss':'')}${kpi(T('Meilleur trade','Best trade'),esc(best.tk),'',esc(FULL?fU(best.pnl,3):vt(best)))}</div>
+    <section class="sec"><h2>${T('À la une','Top picks')}</h2><div class="gal big" id="shTop">${top.map((r,k)=>tile(r,k,k+1)).join('')}</div></section>
+    <section class="sec"><h2>${T('Tous les trades','All trades')}</h2>
+      <div class="chips" style="margin-bottom:16px"><button class="chip on" data-f="all" type="button">${T('Tous','All')}</button><button class="chip" data-f="w" type="button">${T('Gains','Wins')}</button><button class="chip" data-f="l" type="button">${T('Pertes','Losses')}</button><span class="sp"></span><button class="chip on" data-o="best" type="button">${T('Meilleurs','Best')}</button><button class="chip" data-o="date" type="button">${T('Récents','Recent')}</button></div>
+      <div class="gal" id="shWall"></div></section>
+    <section class="cta"><div><h3>${T('Fais le tien.','Make yours.')}</h3><p>${T('Journal de trading open source pour memecoins. Dépose tes PNL cards : tout est lu dans ton navigateur, rien n\'est envoyé.','Open-source memecoin trading journal. Drop your PNL cards: everything is read in your browser, nothing is uploaded.')}</p></div><a class="pill" href="${HOME}">${T('Ouvrir PnL Cards','Open PnL Cards')} ↗</a></section>
+    <div class="cr"><span>${T('Fait par','Made by')} <a href="https://x.com/wthejulio" target="_blank" rel="noopener">wthejulio</a></span><a href="${GH}" target="_blank" rel="noopener">${T('Open source sur GitHub','Open source on GitHub')} ↗</a></div>`;
   document.title=(name?name+' · ':'')+'PnL Cards';
-  const h1=root.querySelector('h1'), fitH=()=>{ const w=root.querySelector('.wrap').clientWidth; h1.style.fontSize='100px'; const tw=h1.scrollWidth||1; h1.style.fontSize=Math.max(40,Math.min(300,Math.floor(100*w/tw*.985)))+'px'; };
-  fitH(); window.addEventListener('resize',fitH); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fitH);
-  const count=(el,end,f)=>{ if(REDUCED){ el.textContent=f(end); return; } const t0=performance.now(); const step=t=>{ const p=Math.min(1,(t-t0)/1300), e=1-Math.pow(1-p,4); el.textContent=f(end*e); if(p<1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
-  count(document.getElementById('shW'),wr,v=>String(Math.round(v)));
-  if(FULL) count(document.getElementById('shTv'),tot,v=>fU(v));
-  let F='all', O='best', list=[];
-  const io='IntersectionObserver' in window?new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),{rootMargin:'0px 0px -5% 0px'}):null;
-  const wire=(el,i)=>{ el.onclick=()=>lb(i); el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); lb(i); } }; };
-  const wall=()=>{ list=(O==='best'?byBest:[...rows].reverse()).filter(r=>F==='all'||(F==='w'?r.s>0:r.s<0));
-    const W=document.getElementById('shWall'); W.innerHTML=list.map((r,i)=>fig(r,i,i+1)).join('')||`<p class="mono" style="color:var(--mute)">${T('Rien ici.','Nothing here.')}</p>`;
-    W.querySelectorAll('.pr').forEach((el,i)=>{ wire(el,i); if(io) io.observe(el); else el.classList.add('in'); }); };
-  root.querySelectorAll('.pod .pr').forEach(el=>{ const r=rows.find(x=>'p'+x.i===el.dataset.k); el.classList.add('in'); el.onclick=()=>{ list=byBest; lb(byBest.indexOf(r)); }; el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } }; });
-  root.querySelectorAll('.ctl button').forEach(b=>b.onclick=()=>{ if(b.dataset.f){ F=b.dataset.f; root.querySelectorAll('.ctl button[data-f]').forEach(x=>x.classList.toggle('on',x===b)); } else { O=b.dataset.o; root.querySelectorAll('.ctl button[data-o]').forEach(x=>x.classList.toggle('on',x===b)); } wall(); });
+  const count=(id,end,f)=>{ const el=document.getElementById(id); if(!el) return; if(REDUCED){ el.textContent=f(end); return; } const t0=performance.now(); const step=t=>{ const p=Math.min(1,(t-t0)/1100), e=1-Math.pow(1-p,4); el.textContent=f(end*e); if(p<1) requestAnimationFrame(step); }; requestAnimationFrame(step); };
+  count('shN',n,v=>String(Math.round(v))); count('shW',wins/n*100,v=>String(Math.round(v)));
+  if(FULL) count('shTv',tot,v=>fU(v));
+  let F='all', O='best', list=byBest, li=0;
+  const tilt=t=>{ if(HOVER&&!REDUCED){ t.onpointermove=e=>{ const b=t.getBoundingClientRect(),x=(e.clientX-b.left)/b.width,y=(e.clientY-b.top)/b.height; t.style.transform=`rotateY(${((x-.5)*12).toFixed(2)}deg) rotateX(${((.5-y)*12).toFixed(2)}deg) scale(1.04)`; t.style.setProperty('--mx',(x*100)+'%'); t.style.setProperty('--my',(y*100)+'%'); }; t.onpointerleave=()=>{ t.style.transform=''; }; } };
+  const wire=(el,L,i)=>{ const act=()=>{ list=L; lb(i); }; el.onclick=act; el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); act(); } }; tilt(el); };
+  const wall=()=>{ const L=(O==='best'?byBest:[...rows].reverse()).filter(r=>F==='all'||(F==='w'?r.s>0:r.s<0));
+    const W=document.getElementById('shWall'); W.innerHTML=L.map((r,i)=>tile(r,i)).join('')||`<p style="color:var(--mute)">${T('Rien ici.','Nothing here.')}</p>`;
+    W.querySelectorAll('.gt').forEach((el,i)=>wire(el,L,i)); };
+  document.querySelectorAll('#shTop .gt').forEach((el,i)=>wire(el,top,i));
+  root.querySelectorAll('.chips .chip').forEach(b=>b.onclick=()=>{ if(b.dataset.f){ F=b.dataset.f; root.querySelectorAll('.chip[data-f]').forEach(x=>x.classList.toggle('on',x===b)); } else { O=b.dataset.o; root.querySelectorAll('.chip[data-o]').forEach(x=>x.classList.toggle('on',x===b)); } wall(); });
   wall();
-  let li=0;
-  function lbKeys(e){ if(e.key==='Escape') lbX(); else if(e.key==='ArrowRight') lbGo(1); else if(e.key==='ArrowLeft') lbGo(-1); }
-  function lbX(){ const el=document.getElementById('shlb'); if(!el) return; el.classList.remove('on'); document.removeEventListener('keydown',lbKeys); document.body.style.overflow=''; setTimeout(()=>el.remove(),220); }
-  function lbGo(dir){ li=(li+dir+list.length)%list.length; lbDraw(); }
-  function lbDraw(){ const r=list[li], st=document.getElementById('shlbc'); st.innerHTML=fig(r,li,0); st.firstElementChild.classList.add('in'); document.getElementById('shlbn').textContent=pad2(li+1)+' / '+pad2(list.length); }
+  function lbKeys(e){ if(e.key==='Escape') lbX(); else if(e.key==='ArrowRight') lbGo(1,1); else if(e.key==='ArrowLeft') lbGo(-1,-1); }
+  function lbX(){ const el=document.getElementById('lb'); if(!el) return; el.classList.remove('on'); document.removeEventListener('keydown',lbKeys); document.body.style.overflow=''; setTimeout(()=>el.remove(),260); }
+  function lbGo(k,dir){ lbDraw(li+k,dir); }
+  function lbDraw(i,dir){
+    li=(i+list.length)%list.length; const r=list[li], el=document.getElementById('lb'); if(!el) return; el.classList.toggle('l',r.s<0);
+    const pic=document.getElementById('lbp'); pic.className='pic'; void pic.offsetWidth; if(dir){ pic.style.setProperty('--d',dir); pic.classList.add('sw'); } pic.innerHTML=art(r);
+    const sub=[dLab(r.day),FULL&&r.inv?T('investi','invested')+' '+(U==='U'?usd(r.inv,false):r.inv.toFixed(2)+' SOL'):''].filter(Boolean).join(' · ');
+    document.getElementById('lbc').innerHTML=`<div class="a"><div class="t">${esc(r.tk)}</div><div class="s">${esc(sub)}</div></div><div class="v n ${r.s>0?'gain':r.s<0?'loss':''}">${esc(vt(r))}${FULL&&r.pct!=null?`<small>${esc(fPct(r.pct))}</small>`:''}</div>`;
+    document.getElementById('lbn').textContent=(li+1)+' / '+list.length;
+    [list[(li+1)%list.length],list[(li-1+list.length)%list.length]].forEach(nx=>{ if(nx&&nx.img){ const im=new Image(); im.src=nx.img; } });
+  }
   function lb(i){
-    li=i; const el=document.createElement('div'); el.id='shlb'; el.className='shlb';
-    el.innerHTML='<div class="ct mono" id="shlbn"></div><div id="shlbc"></div><button class="p" type="button" aria-label="‹">←</button><button class="q" type="button" aria-label="›">→</button><button class="x" type="button" aria-label="✕">×</button>';
-    root.appendChild(el); document.body.style.overflow='hidden'; lbDraw();
-    el.querySelector('.p').onclick=()=>lbGo(-1); el.querySelector('.q').onclick=()=>lbGo(1); el.querySelector('.x').onclick=lbX; el.onclick=e=>{ if(e.target===el||e.target.id==='shlbc') lbX(); };
-    let x0=null; el.addEventListener('touchstart',e=>{ x0=e.touches[0].clientX; },{passive:true}); el.addEventListener('touchend',e=>{ if(x0==null) return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)>50) lbGo(dx<0?1:-1); },{passive:true});
-    document.addEventListener('keydown',lbKeys); requestAnimationFrame(()=>el.classList.add('on'));
+    const old=document.getElementById('lb'); if(old) old.remove();
+    const el=document.createElement('div'); el.id='lb'; el.className='lb'; el.setAttribute('role','dialog'); el.setAttribute('aria-modal','true');
+    el.innerHTML='<div class="ct" id="lbn"></div><div class="stage"><div class="pic" id="lbp"></div><div class="cap" id="lbc"></div></div><button class="nv p" type="button" aria-label="‹">‹</button><button class="nv q" type="button" aria-label="›">›</button><button class="x2" type="button" aria-label="✕">✕</button>';
+    document.body.appendChild(el); document.body.style.overflow='hidden';
+    el.querySelector('.p').onclick=()=>lbGo(-1,-1); el.querySelector('.q').onclick=()=>lbGo(1,1); el.querySelector('.x2').onclick=lbX; el.onclick=e=>{ if(e.target===el) lbX(); };
+    let x0=null; el.addEventListener('touchstart',e=>{ x0=e.touches[0].clientX; },{passive:true}); el.addEventListener('touchend',e=>{ if(x0==null) return; const dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)>50) lbGo(dx<0?1:-1,dx<0?1:-1); },{passive:true});
+    document.addEventListener('keydown',lbKeys); lbDraw(i,0); requestAnimationFrame(()=>el.classList.add('on'));
   }
 }
 
