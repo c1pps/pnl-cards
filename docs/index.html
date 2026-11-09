@@ -1713,7 +1713,6 @@ async function shareBoot(){
     </section>
     <div class="mq"><div class="mqi">${mq}${mq}</div></div>
     <h2>${T('Podium','Podium')}</h2><div class="pod">${pod.map((r,k)=>`<div class="p${k+1}" style="position:relative"><div class="rk">${k+1}</div>${card(r,'p'+r.i)}</div>`).join('')}</div>
-    ${eq}${strip}
     <h2>${T('Le mur','The wall')}</h2>
     <div class="ctl"><button class="chip on" data-f="all" type="button">${T('Tous','All')}</button><button class="chip" data-f="w" type="button">${T('Gains','Wins')}</button><button class="chip" data-f="l" type="button">${T('Pertes','Losses')}</button><span class="sp"></span><button class="chip on" data-o="best" type="button">${T('Meilleurs','Best')}</button><button class="chip" data-o="date" type="button">${T('Récents','Recent')}</button></div>
     <div class="wall" id="shW"></div>
